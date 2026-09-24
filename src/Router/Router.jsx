@@ -6,6 +6,8 @@ import Seniors from "../Components/NavComponents/Seniors";
 import MyRating from "../Components/NavComponents/MyRating";
 import Reviews from "../Components/NavComponents/Reviews";
 import RateSenior from "../Components/NavComponents/Rate";
+import Login from "../Components/Auth/Login";
+import Register from "../Components/Auth/Register";
 
 
 export const router = createBrowserRouter([
@@ -33,7 +35,15 @@ export const router = createBrowserRouter([
       {
         path: "reviews",
         element: <Reviews></Reviews>
-      }
+      },
+      {
+        path:"login",
+        element:<Login/>
+      },
+      {
+        path:"register",
+        element:<Register/>
+      },
     ],
   },
   {
