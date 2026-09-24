@@ -990,7 +990,7 @@ const Seniors = () => {
                     {/* Rate Senior */}
 
                     <Link
-                      to={"/rate"}
+                      to={`/rate/${senior._id}`}
                       className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02] hover:shadow-lg"
                     >
 

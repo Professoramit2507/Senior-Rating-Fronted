@@ -18,25 +18,26 @@ export const router = createBrowserRouter([
         element: <Landing />,
       },
       {
-        path:"seniors",
-        element:<Seniors></Seniors>
+        path: "seniors",
+        element: <Seniors></Seniors>
       },
       {
-        path:"rate",
-        element:<RateSenior></RateSenior>
+        path: "rate/:id",
+        element: <RateSenior />,
+      },
+
+      {
+        path: "my-ratings",
+        element: <MyRating></MyRating>
       },
       {
-        path:"my-ratings",
-        element:<MyRating></MyRating>
-      },
-      {
-        path:"reviews",
-        element:<Reviews></Reviews>
+        path: "reviews",
+        element: <Reviews></Reviews>
       }
     ],
   },
   {
     path: "*",
-    element:<NotFound></NotFound>
+    element: <NotFound></NotFound>
   },
 ]);
