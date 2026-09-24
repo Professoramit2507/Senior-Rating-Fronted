@@ -3,7 +3,6 @@ import {
   Search,
   SlidersHorizontal,
   Star,
-  MessageCircle,
   GraduationCap,
   ArrowRight,
   X,
@@ -21,7 +20,7 @@ const Seniors = () => {
     {
       id: 1,
       name: "Arafat Rahman",
-      batch: "4th Batch",
+      batch: "7th Batch",
       department: "CSE",
       designation: "Senior Mentor",
       rating: 4.9,
@@ -31,7 +30,7 @@ const Seniors = () => {
     {
       id: 2,
       name: "Nusrat Jahan",
-      batch: "3rd Batch",
+      batch: "6th Batch",
       department: "CSE",
       designation: "Academic Guide",
       rating: 4.8,
@@ -41,8 +40,8 @@ const Seniors = () => {
     {
       id: 3,
       name: "Tanvir Hasan",
-      batch: "4th Batch",
-      department: "EEE",
+      batch: "5th Batch",
+      department: "CSE",
       designation: "Student Leader",
       rating: 4.7,
       reviews: 84,
@@ -51,7 +50,7 @@ const Seniors = () => {
     {
       id: 4,
       name: "Sadia Afrin",
-      batch: "2nd Batch",
+      batch: "4th Batch",
       department: "CSE",
       designation: "Senior Mentor",
       rating: 4.9,
@@ -62,7 +61,7 @@ const Seniors = () => {
       id: 5,
       name: "Mahin Islam",
       batch: "3rd Batch",
-      department: "BBA",
+      department: "CSE",
       designation: "Student Representative",
       rating: 4.6,
       reviews: 73,
@@ -71,14 +70,25 @@ const Seniors = () => {
     {
       id: 6,
       name: "Rafi Ahmed",
-      batch: "1st Batch",
+      batch: "2nd Batch",
       department: "CSE",
       designation: "Academic Mentor",
       rating: 4.8,
       reviews: 101,
       image: "RA",
     },
+    {
+      id: 7,
+      name: "Sakib Hasan",
+      batch: "1st Batch",
+      department: "CSE",
+      designation: "Academic Mentor",
+      rating: 4.7,
+      reviews: 88,
+      image: "SH",
+    },
   ];
+
 
   const filteredSeniors = useMemo(() => {
     let result = seniors.filter((senior) => {
@@ -214,11 +224,15 @@ const Seniors = () => {
                 className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-sm font-medium text-slate-700 outline-none focus:border-indigo-500"
               >
                 <option value="All">All Batches</option>
+                <option value="7th Batch">7th Batch</option>
+                <option value="6th Batch">6th Batch</option>
+                <option value="5th Batch">5th Batch</option>
                 <option value="4th Batch">4th Batch</option>
                 <option value="3rd Batch">3rd Batch</option>
                 <option value="2nd Batch">2nd Batch</option>
                 <option value="1st Batch">1st Batch</option>
               </select>
+
             </div>
 
             <select
@@ -228,9 +242,8 @@ const Seniors = () => {
             >
               <option value="All">All Departments</option>
               <option value="CSE">CSE</option>
-              <option value="EEE">EEE</option>
-              <option value="BBA">BBA</option>
             </select>
+
 
             <select
               value={sortBy}
