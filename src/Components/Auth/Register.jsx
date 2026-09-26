@@ -1,4 +1,11 @@
+
+
+
+
+
+
 import { Link, useNavigate } from "react-router";
+
 import {
     User,
     Mail,
@@ -8,17 +15,27 @@ import {
     ArrowRight,
     GraduationCap,
 } from "lucide-react";
+
 import { useState } from "react";
+
 import useAuth from "../Hooks/useAuth";
+
 import Swal from "sweetalert2";
 
 
 const Register = () => {
+
     const { createUser } = useAuth();
+
     const navigate = useNavigate();
 
     const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    const [showConfirmPassword, setShowConfirmPassword] =
+        useState(false);
+
+    const [loading, setLoading] = useState(false);
+
 
     const [formData, setFormData] = useState({
         name: "",
@@ -29,124 +46,275 @@ const Register = () => {
         confirmPassword: "",
     });
 
-    const [loading, setLoading] = useState(false);
 
-    // Handle input change
+    // =========================
+    // HANDLE CHANGE
+    // =========================
+
     const handleChange = (e) => {
+
         const { name, value } = e.target;
 
         setFormData((prev) => ({
             ...prev,
             [name]: value,
         }));
+
     };
 
-    // Handle registration
-   const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    const {
-        name,
-        email,
-        department,
-        batch,
-        password,
-        confirmPassword,
-    } = formData;
+    // =========================
+    // REGISTER
+    // =========================
 
-    if (password !== confirmPassword) {
-        Swal.fire({
-            icon: "error",
-            title: "Password Mismatch!",
-            text: "Password and Confirm Password do not match.",
-            confirmButtonColor: "#4f46e5",
-        });
-        return;
-    }
+    const handleSubmit = async (e) => {
 
-    if (password.length < 6) {
-        Swal.fire({
-            icon: "warning",
-            title: "Weak Password!",
-            text: "Password must be at least 6 characters.",
-            confirmButtonColor: "#4f46e5",
-        });
-        return;
-    }
+        e.preventDefault();
 
-    try {
-        setLoading(true);
 
-        const result = await createUser(email, password);
-
-        console.log("Registration successful:", result.user);
-
-        const userInfo = {
+        const {
             name,
             email,
             department,
             batch,
-        };
+            password,
+            confirmPassword,
+        } = formData;
 
-        console.log("User information:", userInfo);
 
-        await Swal.fire({
-            icon: "success",
-            title: "Registration Successful!",
-            text: "Welcome to CampusRate 🎉",
-            confirmButtonColor: "#4f46e5",
-            confirmButtonText: "Continue",
-        });
+        // Password match
 
-        // Go to Home
-        navigate("/");
+        if (password !== confirmPassword) {
 
-    } catch (error) {
-        console.error("Registration error:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Password Mismatch!",
+                text: "Password and Confirm Password do not match.",
+                confirmButtonColor: "#4f46e5",
+            });
 
-        let errorMessage = "Something went wrong. Please try again.";
-
-        if (error.code === "auth/email-already-in-use") {
-            errorMessage = "This email is already registered!";
-        } else if (error.code === "auth/invalid-email") {
-            errorMessage = "Invalid email address!";
-        } else if (error.code === "auth/weak-password") {
-            errorMessage = "Password is too weak!";
+            return;
         }
 
-        Swal.fire({
-            icon: "error",
-            title: "Registration Failed!",
-            text: errorMessage,
-            confirmButtonColor: "#4f46e5",
-        });
-    } finally {
-        setLoading(false);
-    }
-};
+
+        // Password length
+
+        if (password.length < 6) {
+
+            Swal.fire({
+                icon: "warning",
+                title: "Weak Password!",
+                text: "Password must be at least 6 characters.",
+                confirmButtonColor: "#4f46e5",
+            });
+
+            return;
+        }
+
+
+        try {
+
+            setLoading(true);
+
+
+            // =========================
+            // FIREBASE REGISTER
+            // =========================
+
+            const result = await createUser(
+                email,
+                password,
+                name
+            );
+
+
+            console.log(
+                "Firebase user:",
+                result.user
+            );
+
+
+            // =========================
+            // MONGODB USER DATA
+            // =========================
+
+            const userInfo = {
+
+                firebaseUid: result.user.uid,
+
+                name: name,
+
+                email: email,
+
+                department: department,
+
+                batch: batch,
+
+                role: "user",
+
+                createdAt: new Date().toISOString(),
+
+            };
+
+
+            console.log(
+                "Sending user to MongoDB:",
+                userInfo
+            );
+
+
+            // =========================
+            // SAVE USER
+            // =========================
+
+            const response = await fetch(
+                "http://localhost:3000/users",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
+
+                    body: JSON.stringify(userInfo),
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    "Failed to save user"
+                );
+
+            }
+
+
+            console.log(
+                "MongoDB response:",
+                data
+            );
+
+
+            // =========================
+            // SUCCESS
+            // =========================
+
+            await Swal.fire({
+                icon: "success",
+                title: "Registration Successful! 🎉",
+                text: "Welcome to CampusRate.",
+                confirmButtonColor: "#4f46e5",
+                confirmButtonText: "Continue",
+            });
+
+
+            navigate("/");
+
+        } catch (error) {
+
+            console.error(
+                "Registration error:",
+                error
+            );
+
+
+            let errorMessage =
+                "Something went wrong. Please try again.";
+
+
+            // Firebase errors
+
+            if (
+                error.code ===
+                "auth/email-already-in-use"
+            ) {
+
+                errorMessage =
+                    "This email is already registered!";
+
+            }
+
+            else if (
+                error.code ===
+                "auth/invalid-email"
+            ) {
+
+                errorMessage =
+                    "Invalid email address!";
+
+            }
+
+            else if (
+                error.code ===
+                "auth/weak-password"
+            ) {
+
+                errorMessage =
+                    "Password is too weak!";
+
+            }
+
+            else {
+
+                errorMessage =
+                    error.message ||
+                    errorMessage;
+
+            }
+
+
+            Swal.fire({
+                icon: "error",
+                title: "Registration Failed!",
+                text: errorMessage,
+                confirmButtonColor: "#4f46e5",
+            });
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
+    };
 
 
     return (
+
         <div className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-[#f8fafc] px-4 py-8 sm:py-10">
 
+
             {/* Background Glow */}
+
             <div className="pointer-events-none absolute -left-32 -top-32 h-80 w-80 rounded-full bg-indigo-300/20 blur-3xl" />
 
             <div className="pointer-events-none absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-pink-300/20 blur-3xl" />
 
+
             <div className="relative mx-auto grid w-full max-w-5xl overflow-hidden rounded-4xl border border-white bg-white shadow-2xl shadow-slate-200/70 lg:grid-cols-2">
 
-                {/* ================= LEFT SIDE ================= */}
-                <div className="relative hidden overflow-hidden bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 p-10 text-white lg:flex lg:flex-col lg:justify-between">
 
-                    {/* Decorative Glow */}
+                {/* ================= LEFT ================= */}
+
+                <div className="relative hidden overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-10 text-white lg:flex lg:flex-col lg:justify-between">
+
+
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
 
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
+
                     <div className="relative">
 
+
                         {/* Logo */}
+
                         <div className="flex items-center gap-3">
 
                             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-xl backdrop-blur-md">
@@ -154,6 +322,7 @@ const Register = () => {
                             </div>
 
                             <div>
+
                                 <h2 className="text-xl font-bold">
                                     CampusRate
                                 </h2>
@@ -161,11 +330,14 @@ const Register = () => {
                                 <p className="text-xs text-indigo-100">
                                     Anonymous Senior Rating
                                 </p>
+
                             </div>
 
                         </div>
 
+
                         {/* Heading */}
+
                         <div className="mt-20">
 
                             <p className="text-sm font-medium text-indigo-100">
@@ -173,21 +345,28 @@ const Register = () => {
                             </p>
 
                             <h1 className="mt-3 text-4xl font-extrabold leading-tight">
+
                                 Your experience
                                 <br />
                                 matters.
+
                             </h1>
 
                             <p className="mt-5 max-w-sm text-sm leading-7 text-indigo-100">
+
                                 Create your CampusRate account and share
                                 your honest experience with seniors while
                                 keeping your identity private.
+
                             </p>
 
                         </div>
+
                     </div>
 
-                    {/* Bottom Info */}
+
+                    {/* Bottom */}
+
                     <div className="relative rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
 
                         <p className="text-sm font-semibold">
@@ -195,33 +374,45 @@ const Register = () => {
                         </p>
 
                         <p className="mt-1 text-xs leading-5 text-indigo-100">
+
                             Your identity stays protected when you submit
                             anonymous reviews.
+
                         </p>
 
                     </div>
+
                 </div>
 
-                {/* ================= RIGHT SIDE ================= */}
+
+                {/* ================= RIGHT ================= */}
+
                 <div className="p-6 sm:p-10 lg:p-12">
 
+
                     {/* Mobile Logo */}
+
                     <div className="mb-7 flex items-center justify-center gap-2 lg:hidden">
 
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-purple-600 text-lg shadow-lg">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-lg shadow-lg">
                             ⭐
                         </div>
 
                         <h2 className="text-xl font-extrabold text-slate-800">
+
                             Campus
-                            <span className="bg-linear-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+
+                            <span className="bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
                                 Rate
                             </span>
+
                         </h2>
 
                     </div>
 
+
                     {/* Heading */}
+
                     <div>
 
                         <p className="text-sm font-semibold text-indigo-600">
@@ -229,22 +420,30 @@ const Register = () => {
                         </p>
 
                         <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">
+
                             Create your account
+
                         </h1>
 
                         <p className="mt-2 text-sm text-slate-500">
+
                             Join CampusRate and start sharing your experience.
+
                         </p>
 
                     </div>
 
-                    {/* Form */}
+
+                    {/* ================= FORM ================= */}
+
                     <form
                         onSubmit={handleSubmit}
                         className="mt-6 space-y-4"
                     >
 
-                        {/* Name */}
+
+                        {/* NAME */}
+
                         <div>
 
                             <label className="mb-2 block text-sm font-semibold text-slate-700">
@@ -269,9 +468,12 @@ const Register = () => {
                                 />
 
                             </div>
+
                         </div>
 
-                        {/* Email */}
+
+                        {/* EMAIL */}
+
                         <div>
 
                             <label className="mb-2 block text-sm font-semibold text-slate-700">
@@ -296,12 +498,17 @@ const Register = () => {
                                 />
 
                             </div>
+
                         </div>
 
-                        {/* Department + Batch */}
+
+                        {/* DEPARTMENT + BATCH */}
+
                         <div className="grid grid-cols-2 gap-3">
 
+
                             {/* Department */}
+
                             <div>
 
                                 <label className="mb-2 block text-sm font-semibold text-slate-700">
@@ -334,9 +541,12 @@ const Register = () => {
                                     </select>
 
                                 </div>
+
                             </div>
 
+
                             {/* Batch */}
+
                             <div>
 
                                 <label className="mb-2 block text-sm font-semibold text-slate-700">
@@ -389,7 +599,9 @@ const Register = () => {
 
                         </div>
 
-                        {/* Password */}
+
+                        {/* PASSWORD */}
+
                         <div>
 
                             <label className="mb-2 block text-sm font-semibold text-slate-700">
@@ -437,9 +649,12 @@ const Register = () => {
                                 </button>
 
                             </div>
+
                         </div>
 
-                        {/* Confirm Password */}
+
+                        {/* CONFIRM PASSWORD */}
+
                         <div>
 
                             <label className="mb-2 block text-sm font-semibold text-slate-700">
@@ -487,9 +702,12 @@ const Register = () => {
                                 </button>
 
                             </div>
+
                         </div>
 
-                        {/* Terms */}
+
+                        {/* TERMS */}
+
                         <label className="flex cursor-pointer items-start gap-2 pt-1">
 
                             <input
@@ -516,31 +734,41 @@ const Register = () => {
 
                         </label>
 
-                        {/* Submit */}
+
+                        {/* SUBMIT */}
+
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
+                            className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
                         >
 
                             {loading ? (
+
                                 "Creating Account..."
+
                             ) : (
+
                                 <>
+
                                     Create Account
 
                                     <ArrowRight
                                         size={17}
                                         className="transition-transform group-hover:translate-x-1"
                                     />
+
                                 </>
+
                             )}
 
                         </button>
 
                     </form>
 
-                    {/* Login */}
+
+                    {/* LOGIN */}
+
                     <p className="mt-6 text-center text-sm text-slate-500">
 
                         Already have an account?{" "}
@@ -555,9 +783,13 @@ const Register = () => {
                     </p>
 
                 </div>
+
             </div>
+
         </div>
+
     );
 };
+
 
 export default Register;
