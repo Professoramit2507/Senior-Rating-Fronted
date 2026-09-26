@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import {
     User,
     Mail,
@@ -10,10 +10,12 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import useAuth from "../Hooks/useAuth";
+import Swal from "sweetalert2";
 
 
 const Register = () => {
     const { createUser } = useAuth();
+    const navigate = useNavigate();
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -29,6 +31,7 @@ const Register = () => {
 
     const [loading, setLoading] = useState(false);
 
+    // Handle input change
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -38,69 +41,90 @@ const Register = () => {
         }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    // Handle registration
+   const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        const {
+    const {
+        name,
+        email,
+        department,
+        batch,
+        password,
+        confirmPassword,
+    } = formData;
+
+    if (password !== confirmPassword) {
+        Swal.fire({
+            icon: "error",
+            title: "Password Mismatch!",
+            text: "Password and Confirm Password do not match.",
+            confirmButtonColor: "#4f46e5",
+        });
+        return;
+    }
+
+    if (password.length < 6) {
+        Swal.fire({
+            icon: "warning",
+            title: "Weak Password!",
+            text: "Password must be at least 6 characters.",
+            confirmButtonColor: "#4f46e5",
+        });
+        return;
+    }
+
+    try {
+        setLoading(true);
+
+        const result = await createUser(email, password);
+
+        console.log("Registration successful:", result.user);
+
+        const userInfo = {
             name,
             email,
             department,
             batch,
-            password,
-            confirmPassword,
-        } = formData;
+        };
 
-        // Password match check
-        if (password !== confirmPassword) {
-            alert("Password and Confirm Password do not match!");
-            return;
+        console.log("User information:", userInfo);
+
+        await Swal.fire({
+            icon: "success",
+            title: "Registration Successful!",
+            text: "Welcome to CampusRate 🎉",
+            confirmButtonColor: "#4f46e5",
+            confirmButtonText: "Continue",
+        });
+
+        // Go to Home
+        navigate("/");
+
+    } catch (error) {
+        console.error("Registration error:", error);
+
+        let errorMessage = "Something went wrong. Please try again.";
+
+        if (error.code === "auth/email-already-in-use") {
+            errorMessage = "This email is already registered!";
+        } else if (error.code === "auth/invalid-email") {
+            errorMessage = "Invalid email address!";
+        } else if (error.code === "auth/weak-password") {
+            errorMessage = "Password is too weak!";
         }
 
-        // Password length check
-        if (password.length < 6) {
-            alert("Password must be at least 6 characters!");
-            return;
-        }
+        Swal.fire({
+            icon: "error",
+            title: "Registration Failed!",
+            text: errorMessage,
+            confirmButtonColor: "#4f46e5",
+        });
+    } finally {
+        setLoading(false);
+    }
+};
 
-        try {
-            setLoading(true);
-
-            // Firebase Authentication
-            const result = await createUser(email, password);
-
-            console.log("Registration successful:", result.user);
-
-            // User information
-            const userInfo = {
-                name,
-                email,
-                department,
-                batch,
-            };
-
-            console.log("User information:", userInfo);
-
-            alert("Registration successful!");
-
-            // চাইলে পরে login page-এ পাঠাতে পারো
-            // navigate("/login");
-
-        } catch (error) {
-            console.error("Registration error:", error);
-
-            if (error.code === "auth/email-already-in-use") {
-                alert("This email is already registered!");
-            } else if (error.code === "auth/invalid-email") {
-                alert("Invalid email address!");
-            } else if (error.code === "auth/weak-password") {
-                alert("Password is too weak!");
-            } else {
-                alert(error.message);
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
 
     return (
         <div className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-[#f8fafc] px-4 py-8 sm:py-10">
@@ -199,6 +223,7 @@ const Register = () => {
 
                     {/* Heading */}
                     <div>
+
                         <p className="text-sm font-semibold text-indigo-600">
                             Get started
                         </p>
@@ -210,6 +235,7 @@ const Register = () => {
                         <p className="mt-2 text-sm text-slate-500">
                             Join CampusRate and start sharing your experience.
                         </p>
+
                     </div>
 
                     {/* Form */}
@@ -220,6 +246,7 @@ const Register = () => {
 
                         {/* Name */}
                         <div>
+
                             <label className="mb-2 block text-sm font-semibold text-slate-700">
                                 Full name
                             </label>
@@ -246,6 +273,7 @@ const Register = () => {
 
                         {/* Email */}
                         <div>
+
                             <label className="mb-2 block text-sm font-semibold text-slate-700">
                                 Email address
                             </label>
@@ -294,6 +322,7 @@ const Register = () => {
                                         required
                                         className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-10 pr-2 text-sm outline-none focus:border-indigo-500 focus:bg-white"
                                     >
+
                                         <option value="">
                                             Select
                                         </option>
@@ -321,6 +350,7 @@ const Register = () => {
                                     required
                                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3.5 text-sm outline-none focus:border-indigo-500 focus:bg-white"
                                 >
+
                                     <option value="">
                                         Select
                                     </option>
@@ -391,15 +421,19 @@ const Register = () => {
                                 <button
                                     type="button"
                                     onClick={() =>
-                                        setShowPassword(!showPassword)
+                                        setShowPassword(
+                                            !showPassword
+                                        )
                                     }
                                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600"
                                 >
+
                                     {showPassword ? (
                                         <EyeOff size={18} />
                                     ) : (
                                         <Eye size={18} />
                                     )}
+
                                 </button>
 
                             </div>
@@ -443,11 +477,13 @@ const Register = () => {
                                     }
                                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600"
                                 >
+
                                     {showConfirmPassword ? (
                                         <EyeOff size={18} />
                                     ) : (
                                         <Eye size={18} />
                                     )}
+
                                 </button>
 
                             </div>
