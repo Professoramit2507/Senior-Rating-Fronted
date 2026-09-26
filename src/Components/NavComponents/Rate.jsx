@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-
 import {
     ArrowLeft,
     GraduationCap,
     Star,
     Sparkles,
+    MessageSquare,
+    Send,
+    UserRound,
 } from "lucide-react";
 
 const API_URL = "http://localhost:3000";
@@ -60,51 +62,47 @@ const RateSenior = () => {
     ];
 
     // =========================
-    // GET SENIOR BY ID
+    // GET SENIOR
     // =========================
 
-  useEffect(() => {
-    const fetchSenior = async () => {
-        try {
-            setLoading(true);
-            setError("");
+    useEffect(() => {
+        const fetchSenior = async () => {
+            try {
+                setLoading(true);
+                setError("");
 
-            const response = await fetch(`${API_URL}/senior`);
+                const response = await fetch(`${API_URL}/senior`);
 
-            if (!response.ok) {
-                throw new Error("Failed to fetch seniors");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch seniors");
+                }
+
+                const data = await response.json();
+
+                const foundSenior = data.find(
+                    (item) => String(item._id) === String(id)
+                );
+
+                if (!foundSenior) {
+                    throw new Error("Senior not found");
+                }
+
+                setSenior(foundSenior);
+            } catch (error) {
+                console.error("Error:", error);
+                setError("Senior information পাওয়া যায়নি");
+            } finally {
+                setLoading(false);
             }
+        };
 
-            const data = await response.json();
-
-            console.log("URL ID:", id);
-            console.log("Seniors:", data);
-
-            const foundSenior = data.find(
-                (item) => String(item._id) === String(id)
-            );
-
-            if (!foundSenior) {
-                throw new Error("Senior not found");
-            }
-
-            setSenior(foundSenior);
-        } catch (error) {
-            console.error("Error:", error);
-            setError("Senior information পাওয়া যায়নি");
-        } finally {
-            setLoading(false);
+        if (id) {
+            fetchSenior();
         }
-    };
-
-    if (id) {
-        fetchSenior();
-    }
-}, [id]);
-
+    }, [id]);
 
     // =========================
-    // RATING
+    // HANDLE RATING
     // =========================
 
     const handleRating = (category, rating) => {
@@ -124,7 +122,7 @@ const RateSenior = () => {
                       0
                   ) / ratedCount
               ).toFixed(1)
-            : "—";
+            : "0.0";
 
     // =========================
     // LOADING
@@ -134,10 +132,10 @@ const RateSenior = () => {
         return (
             <div className="flex min-h-screen items-center justify-center bg-slate-50">
                 <div className="text-center">
-                    <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-indigo-100 border-t-indigo-600" />
+                    <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-indigo-100 border-t-indigo-600" />
 
-                    <p className="mt-4 text-sm text-slate-500">
-                        Loading profile...
+                    <p className="mt-4 text-sm font-medium text-slate-500">
+                        Loading senior profile...
                     </p>
                 </div>
             </div>
@@ -166,8 +164,9 @@ const RateSenior = () => {
 
                     <Link
                         to="/seniors"
-                        className="mt-6 inline-flex rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white"
+                        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
                     >
+                        <ArrowLeft size={17} />
                         Back to Seniors
                     </Link>
                 </div>
@@ -176,7 +175,7 @@ const RateSenior = () => {
     }
 
     // =========================
-    // PROFILE
+    // INITIALS
     // =========================
 
     const initials =
@@ -188,307 +187,523 @@ const RateSenior = () => {
             .toUpperCase() || "SR";
 
     return (
-        <section className="min-h-screen bg-[#f6f8fc] px-4 py-6 sm:py-10">
+        <section className="min-h-screen bg-[#f5f7fb] px-4 py-6 sm:px-6 sm:py-10">
+            <div className="mx-auto max-w-7xl">
 
-            <div className="mx-auto max-w-2xl">
+                {/* =========================
+                    BACK BUTTON
+                ========================= */}
 
-                {/* Back */}
                 <Link
                     to="/seniors"
-                    className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-indigo-600"
+                    className="mb-6 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-500 shadow-sm transition hover:text-indigo-600 hover:shadow-md"
                 >
                     <ArrowLeft size={17} />
                     Back to Seniors
                 </Link>
 
                 {/* =========================
-                    PROFILE CARD
+                    MAIN GRID
                 ========================= */}
 
-                <div className="relative overflow-hidden rounded-[30px] bg-white shadow-xl shadow-slate-200/70">
+                <div className="grid items-start gap-6 lg:grid-cols-[360px_1fr]">
 
-                    {/* Gradient Header */}
-                    <div className="relative h-32 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
+                    {/* ==================================================
+                        LEFT SIDE - SENIOR DETAILS
+                    ================================================== */}
 
-                        <div className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
+                    <div className="lg:sticky lg:top-24">
 
-                        <div className="absolute -bottom-20 left-20 h-40 w-40 rounded-full bg-pink-300/20 blur-3xl" />
-                    </div>
+                        <div className="overflow-hidden rounded-[30px] border border-slate-100 bg-white shadow-xl shadow-slate-200/60">
 
-                    {/* Profile Content */}
-                    <div className="relative px-5 pb-6 sm:px-7">
+                            {/* Gradient Header */}
+                            <div className="relative h-36 overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
 
-                        {/* Avatar */}
-                        <div className="-mt-14 flex items-end justify-between">
+                                <div className="absolute -right-10 -top-20 h-52 w-52 rounded-full bg-white/10 blur-3xl" />
 
-                            <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-[28px] border-4 border-white bg-gradient-to-br from-indigo-500 to-purple-600 text-3xl font-bold text-white shadow-xl">
+                                <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-pink-300/20 blur-3xl" />
 
-                                {senior.image ? (
-                                    <img
-                                        src={senior.image}
-                                        alt={senior.name}
-                                        className="h-full w-full object-cover"
+                                <div className="absolute left-6 top-5 flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 backdrop-blur-md">
+                                    <Sparkles
+                                        size={14}
+                                        className="text-yellow-300"
                                     />
-                                ) : (
-                                    initials
-                                )}
 
+                                    <span className="text-xs font-semibold text-white">
+                                        Senior Profile
+                                    </span>
+                                </div>
                             </div>
 
-                            {/* Existing Rating */}
-                            <div className="mb-2 flex items-center gap-1.5 rounded-full bg-yellow-50 px-4 py-2 text-sm font-bold text-yellow-600">
-                                <Star
-                                    size={17}
-                                    fill="currentColor"
-                                />
+                            {/* Profile */}
+                            <div className="relative px-6 pb-6">
 
-                                {senior.rating || "0.0"}
+                                {/* Avatar */}
+                                <div className="-mt-16 flex items-end justify-between">
+
+                                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-[30px] border-4 border-white bg-gradient-to-br from-indigo-500 to-purple-600 text-3xl font-bold text-white shadow-xl">
+
+                                        {senior.image ? (
+                                            <img
+                                                src={senior.image}
+                                                alt={senior.name}
+                                                className="h-full w-full object-cover"
+                                            />
+                                        ) : (
+                                            initials
+                                        )}
+
+                                    </div>
+
+                                    {/* Rating */}
+                                    <div className="mb-2 flex items-center gap-1.5 rounded-2xl bg-yellow-50 px-3.5 py-2 text-yellow-600">
+
+                                        <Star
+                                            size={18}
+                                            fill="currentColor"
+                                        />
+
+                                        <span className="text-sm font-extrabold">
+                                            {senior.rating || "0.0"}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Name */}
+                                <div className="mt-5">
+
+                                    <div className="flex flex-wrap items-center gap-2">
+
+                                        <h1 className="text-2xl font-extrabold text-slate-900">
+                                            {senior.name}
+                                        </h1>
+
+                                        <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-extrabold tracking-wide text-indigo-600">
+                                            SENIOR
+                                        </span>
+
+                                    </div>
+
+                                    <p className="mt-1 text-sm text-slate-400">
+                                        CampusRate Member
+                                    </p>
+                                </div>
+
+                                {/* Info */}
+                                <div className="mt-6 space-y-3">
+
+                                    <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
+
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+                                            <GraduationCap size={20} />
+                                        </div>
+
+                                        <div>
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                                Department
+                                            </p>
+
+                                            <p className="mt-0.5 text-sm font-bold text-slate-800">
+                                                {senior.department || "N/A"}
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
+
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
+                                            <UserRound size={20} />
+                                        </div>
+
+                                        <div>
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                                Batch
+                                            </p>
+
+                                            <p className="mt-0.5 text-sm font-bold text-slate-800">
+                                                {senior.batch || "N/A"}
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
+
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-100 text-pink-600">
+                                            <MessageSquare size={20} />
+                                        </div>
+
+                                        <div>
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                                Reviews
+                                            </p>
+
+                                            <p className="mt-0.5 text-sm font-bold text-slate-800">
+                                                {senior.reviews || 0} Reviews
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                {/* Existing Rating */}
+                                <div className="mt-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 p-5">
+
+                                    <div className="flex items-center justify-between">
+
+                                        <div>
+                                            <p className="text-xs font-semibold text-slate-400">
+                                                Current Rating
+                                            </p>
+
+                                            <div className="mt-1 flex items-center gap-2">
+
+                                                <Star
+                                                    size={19}
+                                                    fill="#facc15"
+                                                    className="text-yellow-400"
+                                                />
+
+                                                <span className="text-2xl font-extrabold text-slate-900">
+                                                    {senior.rating || "0.0"}
+                                                </span>
+
+                                                <span className="text-xs text-slate-400">
+                                                    / 5
+                                                </span>
+
+                                            </div>
+                                        </div>
+
+                                        <div className="text-right">
+                                            <p className="text-xs font-semibold text-slate-400">
+                                                Total
+                                            </p>
+
+                                            <p className="text-lg font-bold text-indigo-600">
+                                                {senior.reviews || 0}
+                                            </p>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                {/* Anonymous Info */}
+                                <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
+
+                                    <p className="text-sm font-bold text-indigo-700">
+                                        🔒 Anonymous Rating
+                                    </p>
+
+                                    <p className="mt-1 text-xs leading-5 text-indigo-500">
+                                        আপনার identity অন্যদের কাছে প্রকাশ
+                                        করা হবে না।
+                                    </p>
+
+                                </div>
                             </div>
-                        </div>
-
-                        {/* Name */}
-                        <div className="mt-5">
-
-                            <div className="flex items-center gap-2">
-                                <h1 className="text-2xl font-bold text-slate-900">
-                                    {senior.name}
-                                </h1>
-
-                                <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-bold text-indigo-600">
-                                    SENIOR
-                                </span>
-                            </div>
-
-                            {/* Department */}
-                            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500">
-
-                                <span className="flex items-center gap-1.5">
-                                    <GraduationCap size={16} />
-                                    {senior.department}
-                                </span>
-
-                                <span>
-                                    •
-                                </span>
-
-                                <span>
-                                    {senior.batch}
-                                </span>
-
-                            </div>
-
-                            {/* Reviews */}
-                            <p className="mt-3 text-xs text-slate-400">
-                                ⭐ {senior.rating || 0} average rating
-                                <span className="mx-2">•</span>
-                                {senior.reviews || 0} reviews
-                            </p>
-
                         </div>
                     </div>
-                </div>
 
-                {/* =========================
-                    RATING HEADER
-                ========================= */}
+                    {/* ==================================================
+                        RIGHT SIDE - RATING
+                    ================================================== */}
 
-                <div className="mt-6 rounded-[28px] bg-slate-900 p-6 text-white shadow-xl">
+                    <div>
 
-                    <div className="flex items-center justify-between">
+                        {/* Rating Header */}
+                        <div className="rounded-[30px] bg-slate-900 p-6 text-white shadow-xl sm:p-7">
 
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <Sparkles
-                                    size={18}
-                                    className="text-yellow-400"
-                                />
+                            <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
 
-                                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                    Your Review
+                                <div>
+
+                                    <div className="flex items-center gap-2">
+
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10">
+                                            <Sparkles
+                                                size={18}
+                                                className="text-yellow-400"
+                                            />
+                                        </div>
+
+                                        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                                            Your Review
+                                        </p>
+
+                                    </div>
+
+                                    <h2 className="mt-3 text-2xl font-extrabold">
+                                        Rate {senior.name?.split(" ")[0]}
+                                    </h2>
+
+                                    <p className="mt-1 text-sm text-slate-400">
+                                        Give your honest experience
+                                    </p>
+
+                                </div>
+
+                                {/* Average */}
+                                <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-center backdrop-blur">
+
+                                    <div className="flex items-center justify-center gap-1">
+
+                                        <Star
+                                            size={17}
+                                            fill="#facc15"
+                                            className="text-yellow-400"
+                                        />
+
+                                        <span className="text-2xl font-extrabold">
+                                            {average}
+                                        </span>
+
+                                    </div>
+
+                                    <p className="mt-1 text-[11px] font-medium text-slate-500">
+                                        Your Average
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            {/* Progress */}
+                            <div className="mt-6">
+
+                                <div className="mb-2 flex items-center justify-between">
+
+                                    <span className="text-xs font-medium text-slate-400">
+                                        Rating Progress
+                                    </span>
+
+                                    <span className="text-xs font-bold text-white">
+                                        {ratedCount}/{categories.length}
+                                    </span>
+
+                                </div>
+
+                                <div className="h-2 overflow-hidden rounded-full bg-white/10">
+
+                                    <div
+                                        className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 transition-all duration-500"
+                                        style={{
+                                            width: `${
+                                                (ratedCount /
+                                                    categories.length) *
+                                                100
+                                            }%`,
+                                        }}
+                                    />
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        {/* Category Title */}
+                        <div className="mb-4 mt-6 flex items-center justify-between">
+
+                            <div>
+                                <h2 className="text-lg font-extrabold text-slate-900">
+                                    Rating Categories
+                                </h2>
+
+                                <p className="mt-1 text-xs text-slate-400">
+                                    প্রতিটি category-তে ১ থেকে ৫ star দিন
                                 </p>
                             </div>
 
-                            <h2 className="mt-2 text-xl font-bold">
-                                How would you rate {senior.name?.split(" ")[0]}?
-                            </h2>
-                        </div>
-
-                        <div className="text-right">
-                            <p className="text-3xl font-bold">
-                                {average}
-                            </p>
-
-                            <p className="text-xs text-slate-400">
-                                Your average
-                            </p>
-                        </div>
-
-                    </div>
-
-                    {/* Progress */}
-                    <div className="mt-5">
-
-                        <div className="mb-2 flex justify-between text-xs text-slate-400">
-                            <span>
-                                Rating progress
+                            <span className="rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-600">
+                                {ratedCount} Rated
                             </span>
 
-                            <span>
-                                {ratedCount}/{categories.length}
-                            </span>
                         </div>
 
-                        <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                            <div
-                                className="h-full rounded-full bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-500"
-                                style={{
-                                    width: `${
-                                        (ratedCount /
-                                            categories.length) *
-                                        100
-                                    }%`,
-                                }}
-                            />
-                        </div>
+                        {/* Categories */}
+                        <div className="grid gap-4 md:grid-cols-2">
 
-                    </div>
-                </div>
+                            {categories.map((category, index) => {
+                                const rating =
+                                    ratings[category.id] || 0;
 
-                {/* =========================
-                    CATEGORIES
-                ========================= */}
+                                return (
+                                    <div
+                                        key={category.id}
+                                        className={`group rounded-[26px] border bg-white p-5 transition-all duration-300 ${
+                                            rating
+                                                ? "border-indigo-200 shadow-lg shadow-indigo-100/50"
+                                                : "border-slate-100 shadow-sm hover:-translate-y-1 hover:shadow-lg"
+                                        }`}
+                                    >
 
-                <div className="mt-5 space-y-3">
+                                        {/* Category Top */}
+                                        <div className="flex items-center gap-3">
 
-                    {categories.map((category, index) => {
-                        const rating =
-                            ratings[category.id] || 0;
+                                            <div
+                                                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl transition ${
+                                                    rating
+                                                        ? "bg-indigo-50"
+                                                        : "bg-slate-50 group-hover:bg-indigo-50"
+                                                }`}
+                                            >
+                                                {category.emoji}
+                                            </div>
 
-                        return (
-                            <div
-                                key={category.id}
-                                className={`rounded-[25px] border bg-white p-5 transition-all ${
-                                    rating
-                                        ? "border-indigo-100 shadow-md shadow-indigo-100/50"
-                                        : "border-slate-100 shadow-sm"
-                                }`}
-                            >
+                                            <div className="flex-1">
 
-                                <div className="flex items-center gap-4">
+                                                <div className="flex items-center justify-between">
 
-                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-2xl">
-                                        {category.emoji}
-                                    </div>
+                                                    <h3 className="font-extrabold text-slate-900">
+                                                        {category.title}
+                                                    </h3>
 
-                                    <div className="flex-1">
-                                        <div className="flex items-center justify-between">
-                                            <h3 className="font-bold text-slate-900">
-                                                {category.title}
-                                            </h3>
+                                                    <span className="text-[10px] font-extrabold text-slate-300">
+                                                        0{index + 1}
+                                                    </span>
 
-                                            <span className="text-[10px] font-bold text-slate-300">
-                                                0{index + 1}
-                                            </span>
+                                                </div>
+
+                                                <p className="mt-1 text-xs text-slate-400">
+                                                    {category.subtitle}
+                                                </p>
+
+                                            </div>
                                         </div>
 
-                                        <p className="mt-1 text-xs text-slate-400">
-                                            {category.subtitle}
+                                        {/* Stars */}
+                                        <div className="mt-5 flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2.5">
+
+                                            <div className="flex">
+
+                                                {[1, 2, 3, 4, 5].map(
+                                                    (star) => (
+                                                        <button
+                                                            key={star}
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleRating(
+                                                                    category.id,
+                                                                    star
+                                                                )
+                                                            }
+                                                            aria-label={`${star} star`}
+                                                            className={`flex h-9 w-9 items-center justify-center text-2xl transition-all duration-200 hover:scale-125 ${
+                                                                star <= rating
+                                                                    ? "text-yellow-400"
+                                                                    : "text-slate-300 hover:text-yellow-300"
+                                                            }`}
+                                                        >
+                                                            ★
+                                                        </button>
+                                                    )
+                                                )}
+
+                                            </div>
+
+                                            <span
+                                                className={`text-xs font-bold ${
+                                                    rating
+                                                        ? "text-indigo-600"
+                                                        : "text-slate-400"
+                                                }`}
+                                            >
+                                                {rating
+                                                    ? `${rating}/5`
+                                                    : "Rate"}
+                                            </span>
+
+                                        </div>
+                                    </div>
+                                );
+                            })}
+
+                        </div>
+
+                        {/* =========================
+                            REVIEW BOX
+                        ========================= */}
+
+                        <div className="mt-5 rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
+
+                            <div className="flex items-start justify-between gap-4">
+
+                                <div className="flex items-center gap-3">
+
+                                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-pink-50 text-pink-500">
+                                        <MessageSquare size={20} />
+                                    </div>
+
+                                    <div>
+                                        <h3 className="font-extrabold text-slate-900">
+                                            Write something
+                                        </h3>
+
+                                        <p className="mt-0.5 text-xs text-slate-400">
+                                            Share your honest experience
                                         </p>
                                     </div>
 
                                 </div>
 
-                                {/* Stars */}
-                                <div className="mt-4 flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2">
+                                <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-400">
+                                    {review.length}/300
+                                </span>
 
-                                    <div className="flex">
-                                        {[1, 2, 3, 4, 5].map(
-                                            (star) => (
-                                                <button
-                                                    key={star}
-                                                    type="button"
-                                                    onClick={() =>
-                                                        handleRating(
-                                                            category.id,
-                                                            star
-                                                        )
-                                                    }
-                                                    className={`flex h-9 w-9 items-center justify-center text-2xl transition-all hover:scale-125 ${
-                                                        star <= rating
-                                                            ? "text-yellow-400"
-                                                            : "text-slate-300"
-                                                    }`}
-                                                >
-                                                    ★
-                                                </button>
-                                            )
-                                        )}
-                                    </div>
-
-                                    <span className="text-xs font-semibold text-slate-400">
-                                        {rating
-                                            ? `${rating}/5`
-                                            : "Rate"}
-                                    </span>
-                                </div>
                             </div>
-                        );
-                    })}
-                </div>
 
-                {/* =========================
-                    REVIEW
-                ========================= */}
+                            <textarea
+                                value={review}
+                                onChange={(e) =>
+                                    setReview(
+                                        e.target.value.slice(0, 300)
+                                    )
+                                }
+                                rows={5}
+                                placeholder={`How was your experience with ${senior.name}?`}
+                                className="mt-5 w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-6 text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-50"
+                            />
 
-                <div className="mt-5 rounded-[25px] border border-slate-100 bg-white p-5 shadow-sm">
-
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="font-bold text-slate-900">
-                                Write something
-                            </h3>
-
-                            <p className="mt-1 text-xs text-slate-400">
-                                Share your experience
-                            </p>
                         </div>
 
-                        <span className="text-xs text-slate-400">
-                            {review.length}/300
-                        </span>
+                        {/* =========================
+                            SUBMIT
+                        ========================= */}
+
+                        <button
+                            type="button"
+                            disabled={ratedCount !== categories.length}
+                            className={`mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-extrabold transition-all duration-300 ${
+                                ratedCount === categories.length
+                                    ? "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-xl shadow-indigo-200 hover:-translate-y-1 hover:shadow-2xl"
+                                    : "cursor-not-allowed bg-slate-200 text-slate-400"
+                            }`}
+                        >
+
+                            {ratedCount === categories.length ? (
+                                <>
+                                    <Send size={18} />
+                                    Submit Rating
+                                </>
+                            ) : (
+                                <>
+                                    {categories.length - ratedCount} ratings
+                                    remaining
+                                </>
+                            )}
+
+                        </button>
+
+                        {/* Bottom Note */}
+                        <p className="mt-4 text-center text-xs leading-5 text-slate-400">
+                            Your review will be submitted anonymously and
+                            cannot be linked publicly to your profile.
+                        </p>
+
                     </div>
-
-                    <textarea
-                        value={review}
-                        onChange={(e) =>
-                            setReview(
-                                e.target.value.slice(0, 300)
-                            )
-                        }
-                        rows={4}
-                        placeholder={`How was your experience with ${senior.name}?`}
-                        className="mt-4 w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-50"
-                    />
                 </div>
-
-                {/* =========================
-                    SUBMIT
-                ========================= */}
-
-                <button
-                    type="button"
-                    disabled={ratedCount !== categories.length}
-                    className={`mt-5 w-full rounded-2xl py-4 font-bold text-white transition-all ${
-                        ratedCount === categories.length
-                            ? "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-xl shadow-indigo-200 hover:-translate-y-1"
-                            : "cursor-not-allowed bg-slate-200 text-slate-400"
-                    }`}
-                >
-                    {ratedCount === categories.length
-                        ? "Submit Rating  →"
-                        : `${categories.length - ratedCount} ratings remaining`}
-                </button>
-
             </div>
         </section>
     );
