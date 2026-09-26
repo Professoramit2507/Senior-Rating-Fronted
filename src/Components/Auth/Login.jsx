@@ -1,3 +1,370 @@
+// import { Link, useNavigate } from "react-router";
+// import {
+//     Mail,
+//     Lock,
+//     Eye,
+//     EyeOff,
+//     ArrowRight,
+// } from "lucide-react";
+// import { useState } from "react";
+// import Swal from "sweetalert2";
+// import useAuth from "../Hooks/useAuth";
+
+// const Login = () => {
+//     const { loginUser } = useAuth();
+//     const navigate = useNavigate();
+
+//     const [showPassword, setShowPassword] = useState(false);
+
+//     const [formData, setFormData] = useState({
+//         email: "",
+//         password: "",
+//     });
+
+//     const [loading, setLoading] = useState(false);
+
+//     const handleChange = (e) => {
+//         const { name, value } = e.target;
+
+//         setFormData((prev) => ({
+//             ...prev,
+//             [name]: value,
+//         }));
+//     };
+
+//     const handleSubmit = async (e) => {
+//         e.preventDefault();
+
+//         const { email, password } = formData;
+
+//         try {
+//             setLoading(true);
+
+//             const result = await loginUser(email, password);
+
+//             console.log("Login successful:", result.user);
+
+//             // Success Alert
+//             await Swal.fire({
+//                 icon: "success",
+//                 title: "Welcome Back! 🎉",
+//                 text: "Login successful. Welcome to CampusRate!",
+//                 confirmButtonColor: "#4f46e5",
+//                 timer: 1800,
+//                 showConfirmButton: false,
+//             });
+
+//             // Home page
+//             navigate("/");
+
+//         } catch (error) {
+//             console.error("Login error:", error);
+
+//             let errorMessage = "Something went wrong. Please try again.";
+
+//             if (
+//                 error.code === "auth/invalid-credential" ||
+//                 error.code === "auth/invalid-login-credentials"
+//             ) {
+//                 errorMessage = "Invalid email or password!";
+//             } else if (error.code === "auth/user-not-found") {
+//                 errorMessage = "No account found with this email!";
+//             } else if (error.code === "auth/wrong-password") {
+//                 errorMessage = "Incorrect password!";
+//             } else if (error.code === "auth/invalid-email") {
+//                 errorMessage = "Please enter a valid email address!";
+//             } else if (error.code === "auth/too-many-requests") {
+//                 errorMessage =
+//                     "Too many failed attempts. Please try again later.";
+//             } else if (error.message) {
+//                 errorMessage = error.message;
+//             }
+
+//             // Error Alert
+//             Swal.fire({
+//                 icon: "error",
+//                 title: "Login Failed! ❌",
+//                 text: errorMessage,
+//                 confirmButtonColor: "#4f46e5",
+//             });
+
+//         } finally {
+//             setLoading(false);
+//         }
+//     };
+
+//     return (
+//         <div className="relative flex min-h-[calc(100vh-72px)] items-center justify-center overflow-hidden bg-[#f8fafc] px-4 py-10">
+
+//             {/* Background Glow */}
+//             <div className="pointer-events-none absolute -left-32 -top-32 h-80 w-80 rounded-full bg-indigo-300/20 blur-3xl" />
+
+//             <div className="pointer-events-none absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-purple-300/20 blur-3xl" />
+
+//             <div className="relative grid w-full max-w-5xl overflow-hidden rounded-4xl border border-white bg-white shadow-2xl shadow-slate-200/70 lg:grid-cols-2">
+
+//                 {/* ================= LEFT SIDE ================= */}
+//                 <div className="relative hidden overflow-hidden bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 p-10 text-white lg:flex lg:flex-col lg:justify-between">
+
+//                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
+
+//                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
+
+//                     <div className="relative">
+
+//                         {/* Logo */}
+//                         <div className="flex items-center gap-3">
+
+//                             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-md">
+//                                 ⭐
+//                             </div>
+
+//                             <div>
+//                                 <h2 className="text-xl font-bold">
+//                                     CampusRate
+//                                 </h2>
+
+//                                 <p className="text-xs text-indigo-100">
+//                                     Anonymous Senior Rating
+//                                 </p>
+//                             </div>
+
+//                         </div>
+
+//                         {/* Heading */}
+//                         <div className="mt-20">
+
+//                             <p className="text-sm font-medium text-indigo-100">
+//                                 Welcome back 👋
+//                             </p>
+
+//                             <h1 className="mt-3 text-4xl font-extrabold leading-tight">
+//                                 Your voice,
+//                                 <br />
+//                                 your experience.
+//                             </h1>
+
+//                             <p className="mt-5 max-w-sm text-sm leading-7 text-indigo-100">
+//                                 Login to rate seniors, manage your reviews
+//                                 and share your experience with the campus
+//                                 community.
+//                             </p>
+
+//                         </div>
+//                     </div>
+
+//                     {/* Bottom */}
+//                     <div className="relative rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md">
+
+//                         <p className="text-sm font-medium">
+//                             🔒 Your identity stays anonymous
+//                         </p>
+
+//                         <p className="mt-1 text-xs text-indigo-100">
+//                             Your personal information will never be shown
+//                             with your reviews.
+//                         </p>
+
+//                     </div>
+//                 </div>
+
+//                 {/* ================= RIGHT SIDE ================= */}
+//                 <div className="p-6 sm:p-10 lg:p-12">
+
+//                     {/* Mobile Logo */}
+//                     <div className="mb-8 flex items-center justify-center gap-2 lg:hidden">
+
+//                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-purple-600 text-lg shadow-lg">
+//                             ⭐
+//                         </div>
+
+//                         <h2 className="text-xl font-extrabold text-slate-800">
+//                             Campus
+//                             <span className="bg-linear-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
+//                                 Rate
+//                             </span>
+//                         </h2>
+
+//                     </div>
+
+//                     {/* Heading */}
+//                     <div>
+
+//                         <p className="text-sm font-semibold text-indigo-600">
+//                             Welcome back
+//                         </p>
+
+//                         <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">
+//                             Sign in to your account
+//                         </h1>
+
+//                         <p className="mt-2 text-sm text-slate-500">
+//                             Continue your CampusRate journey.
+//                         </p>
+
+//                     </div>
+
+//                     {/* Form */}
+//                     <form
+//                         onSubmit={handleSubmit}
+//                         className="mt-6 space-y-5"
+//                     >
+
+//                         {/* Email */}
+//                         <div>
+
+//                             <label className="mb-2 block text-sm font-semibold text-slate-700">
+//                                 Email address
+//                             </label>
+
+//                             <div className="relative">
+
+//                                 <Mail
+//                                     size={18}
+//                                     className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+//                                 />
+
+//                                 <input
+//                                     type="email"
+//                                     name="email"
+//                                     value={formData.email}
+//                                     onChange={handleChange}
+//                                     placeholder="you@example.com"
+//                                     required
+//                                     className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50"
+//                                 />
+
+//                             </div>
+//                         </div>
+
+//                         {/* Password */}
+//                         <div>
+
+//                             <div className="mb-2 flex items-center justify-between">
+
+//                                 <label className="text-sm font-semibold text-slate-700">
+//                                     Password
+//                                 </label>
+
+//                                 <Link
+//                                     to="/forgot-password"
+//                                     className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+//                                 >
+//                                     Forgot password?
+//                                 </Link>
+
+//                             </div>
+
+//                             <div className="relative">
+
+//                                 <Lock
+//                                     size={18}
+//                                     className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+//                                 />
+
+//                                 <input
+//                                     type={
+//                                         showPassword
+//                                             ? "text"
+//                                             : "password"
+//                                     }
+//                                     name="password"
+//                                     value={formData.password}
+//                                     onChange={handleChange}
+//                                     placeholder="••••••••"
+//                                     required
+//                                     className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-12 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-50"
+//                                 />
+
+//                                 <button
+//                                     type="button"
+//                                     onClick={() =>
+//                                         setShowPassword(!showPassword)
+//                                     }
+//                                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600"
+//                                 >
+//                                     {showPassword ? (
+//                                         <EyeOff size={18} />
+//                                     ) : (
+//                                         <Eye size={18} />
+//                                     )}
+//                                 </button>
+
+//                             </div>
+//                         </div>
+
+//                         {/* Remember */}
+//                         <label className="flex cursor-pointer items-center gap-2">
+
+//                             <input
+//                                 type="checkbox"
+//                                 className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+//                             />
+
+//                             <span className="text-sm text-slate-500">
+//                                 Remember me
+//                             </span>
+
+//                         </label>
+
+//                         {/* Submit */}
+//                         <button
+//                             type="submit"
+//                             disabled={loading}
+//                             className="group flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60"
+//                         >
+
+//                             {loading ? (
+//                                 <>
+//                                     <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+//                                     Signing in...
+//                                 </>
+//                             ) : (
+//                                 <>
+//                                     Sign In
+
+//                                     <ArrowRight
+//                                         size={17}
+//                                         className="transition-transform group-hover:translate-x-1"
+//                                     />
+//                                 </>
+//                             )}
+
+//                         </button>
+
+//                     </form>
+
+//                     {/* Register */}
+//                     <p className="mt-7 text-center text-sm text-slate-500">
+
+//                         Don't have an account?{" "}
+
+//                         <Link
+//                             to="/register"
+//                             className="font-bold text-indigo-600 hover:text-purple-600"
+//                         >
+//                             Create account
+//                         </Link>
+
+//                     </p>
+
+//                 </div>
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default Login;
+
+
+
+
+
+
+
+
+
+
 import { Link, useNavigate } from "react-router";
 import {
     Mail,
@@ -32,66 +399,88 @@ const Login = () => {
         }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+   const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        const { email, password } = formData;
+    const { email, password } = formData;
 
-        try {
-            setLoading(true);
+    try {
+        setLoading(true);
 
-            const result = await loginUser(email, password);
+        // Firebase login
+        const result = await loginUser(email, password);
 
-            console.log("Login successful:", result.user);
+        const loggedInUser = result.user;
 
-            // Success Alert
-            await Swal.fire({
-                icon: "success",
-                title: "Welcome Back! 🎉",
-                text: "Login successful. Welcome to CampusRate!",
-                confirmButtonColor: "#4f46e5",
-                timer: 1800,
-                showConfirmButton: false,
-            });
+        console.log("Login successful:", loggedInUser);
 
-            // Home page
-            navigate("/");
+        // MongoDB থেকে user information নেওয়া
+        const response = await fetch(
+            `http://localhost:3000/user?email=${loggedInUser.email}`
+        );
 
-        } catch (error) {
-            console.error("Login error:", error);
-
-            let errorMessage = "Something went wrong. Please try again.";
-
-            if (
-                error.code === "auth/invalid-credential" ||
-                error.code === "auth/invalid-login-credentials"
-            ) {
-                errorMessage = "Invalid email or password!";
-            } else if (error.code === "auth/user-not-found") {
-                errorMessage = "No account found with this email!";
-            } else if (error.code === "auth/wrong-password") {
-                errorMessage = "Incorrect password!";
-            } else if (error.code === "auth/invalid-email") {
-                errorMessage = "Please enter a valid email address!";
-            } else if (error.code === "auth/too-many-requests") {
-                errorMessage =
-                    "Too many failed attempts. Please try again later.";
-            } else if (error.message) {
-                errorMessage = error.message;
-            }
-
-            // Error Alert
-            Swal.fire({
-                icon: "error",
-                title: "Login Failed! ❌",
-                text: errorMessage,
-                confirmButtonColor: "#4f46e5",
-            });
-
-        } finally {
-            setLoading(false);
+        if (!response.ok) {
+            throw new Error("User information পাওয়া যায়নি");
         }
-    };
+
+        const userData = await response.json();
+
+        console.log("MongoDB user:", userData);
+
+        await Swal.fire({
+            icon: "success",
+            title: "Welcome Back! 🎉",
+            text: "Login successful!",
+            confirmButtonColor: "#4f46e5",
+            timer: 1500,
+            showConfirmButton: false,
+        });
+
+        // =========================
+        // ADMIN CHECK
+        // =========================
+
+        if (userData?.role === "admin") {
+            navigate("/admin");
+        } else {
+            navigate("/");
+        }
+
+    } catch (error) {
+        console.error("Login error:", error);
+
+        let errorMessage = "Something went wrong. Please try again.";
+
+        if (
+            error.code === "auth/invalid-credential" ||
+            error.code === "auth/invalid-login-credentials"
+        ) {
+            errorMessage = "Invalid email or password!";
+        } else if (error.code === "auth/user-not-found") {
+            errorMessage = "No account found with this email!";
+        } else if (error.code === "auth/wrong-password") {
+            errorMessage = "Incorrect password!";
+        } else if (error.code === "auth/invalid-email") {
+            errorMessage = "Please enter a valid email address!";
+        } else if (error.code === "auth/too-many-requests") {
+            errorMessage =
+                "Too many failed attempts. Please try again later.";
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        Swal.fire({
+            icon: "error",
+            title: "Login Failed! ❌",
+            text: errorMessage,
+            confirmButtonColor: "#4f46e5",
+        });
+
+    } finally {
+        setLoading(false);
+    }
+};
+
 
     return (
         <div className="relative flex min-h-[calc(100vh-72px)] items-center justify-center overflow-hidden bg-[#f8fafc] px-4 py-10">

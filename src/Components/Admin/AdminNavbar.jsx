@@ -51,12 +51,14 @@ const AdminNavbar = () => {
                         </div>
 
                         <div>
-                            <h1 className="text-xl font-extrabold text-slate-800">
+                           <Link to={"/"}>
+                             <h1 className="text-xl font-extrabold text-slate-800">
                                 Campus
                                 <span className="bg-gradient-to-r from-indigo-600 to-pink-500 bg-clip-text text-transparent">
                                     Rate
                                 </span>
                             </h1>
+                           </Link>
 
                             <p className="text-[10px] font-medium tracking-wide text-slate-400">
                                 Admin Panel
