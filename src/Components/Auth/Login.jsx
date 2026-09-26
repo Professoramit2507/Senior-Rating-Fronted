@@ -7,6 +7,7 @@ import {
     ArrowRight,
 } from "lucide-react";
 import { useState } from "react";
+import Swal from "sweetalert2";
 import useAuth from "../Hooks/useAuth";
 
 const Login = () => {
@@ -43,25 +44,50 @@ const Login = () => {
 
             console.log("Login successful:", result.user);
 
-            alert("Login successful!");
+            // Success Alert
+            await Swal.fire({
+                icon: "success",
+                title: "Welcome Back! 🎉",
+                text: "Login successful. Welcome to CampusRate!",
+                confirmButtonColor: "#4f46e5",
+                timer: 1800,
+                showConfirmButton: false,
+            });
 
-            // Login successful হলে home page
+            // Home page
             navigate("/");
 
         } catch (error) {
             console.error("Login error:", error);
 
-            if (error.code === "auth/invalid-credential") {
-                alert("Invalid email or password!");
+            let errorMessage = "Something went wrong. Please try again.";
+
+            if (
+                error.code === "auth/invalid-credential" ||
+                error.code === "auth/invalid-login-credentials"
+            ) {
+                errorMessage = "Invalid email or password!";
             } else if (error.code === "auth/user-not-found") {
-                alert("No account found with this email!");
+                errorMessage = "No account found with this email!";
             } else if (error.code === "auth/wrong-password") {
-                alert("Incorrect password!");
+                errorMessage = "Incorrect password!";
             } else if (error.code === "auth/invalid-email") {
-                alert("Invalid email address!");
-            } else {
-                alert(error.message);
+                errorMessage = "Please enter a valid email address!";
+            } else if (error.code === "auth/too-many-requests") {
+                errorMessage =
+                    "Too many failed attempts. Please try again later.";
+            } else if (error.message) {
+                errorMessage = error.message;
             }
+
+            // Error Alert
+            Swal.fire({
+                icon: "error",
+                title: "Login Failed! ❌",
+                text: errorMessage,
+                confirmButtonColor: "#4f46e5",
+            });
+
         } finally {
             setLoading(false);
         }
@@ -80,7 +106,6 @@ const Login = () => {
                 {/* ================= LEFT SIDE ================= */}
                 <div className="relative hidden overflow-hidden bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500 p-10 text-white lg:flex lg:flex-col lg:justify-between">
 
-                    {/* Glow */}
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
 
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
@@ -106,6 +131,7 @@ const Login = () => {
 
                         </div>
 
+                        {/* Heading */}
                         <div className="mt-20">
 
                             <p className="text-sm font-medium text-indigo-100">
@@ -253,9 +279,7 @@ const Login = () => {
                                 <button
                                     type="button"
                                     onClick={() =>
-                                        setShowPassword(
-                                            !showPassword
-                                        )
+                                        setShowPassword(!showPassword)
                                     }
                                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600"
                                 >
@@ -291,7 +315,10 @@ const Login = () => {
                         >
 
                             {loading ? (
-                                "Signing in..."
+                                <>
+                                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                                    Signing in...
+                                </>
                             ) : (
                                 <>
                                     Sign In
