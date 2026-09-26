@@ -117,11 +117,11 @@ const RateSenior = () => {
     const average =
         ratedCount > 0
             ? (
-                  Object.values(ratings).reduce(
-                      (total, value) => total + value,
-                      0
-                  ) / ratedCount
-              ).toFixed(1)
+                Object.values(ratings).reduce(
+                    (total, value) => total + value,
+                    0
+                ) / ratedCount
+            ).toFixed(1)
             : "0.0";
 
     // =========================
@@ -217,7 +217,7 @@ const RateSenior = () => {
                         <div className="overflow-hidden rounded-[30px] border border-slate-100 bg-white shadow-xl shadow-slate-200/60">
 
                             {/* Gradient Header */}
-                            <div className="relative h-36 overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
+                            <div className="relative h-36 overflow-hidden bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500">
 
                                 <div className="absolute -right-10 -top-20 h-52 w-52 rounded-full bg-white/10 blur-3xl" />
 
@@ -241,7 +241,7 @@ const RateSenior = () => {
                                 {/* Avatar */}
                                 <div className="-mt-16 flex items-end justify-between">
 
-                                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-[30px] border-4 border-white bg-gradient-to-br from-indigo-500 to-purple-600 text-3xl font-bold text-white shadow-xl">
+                                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-[30px] border-4 border-white bg-linear-to-br from-indigo-500 to-purple-600 text-3xl font-bold text-white shadow-xl">
 
                                         {senior.image ? (
                                             <img
@@ -349,7 +349,7 @@ const RateSenior = () => {
                                 </div>
 
                                 {/* Existing Rating */}
-                                <div className="mt-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 p-5">
+                                <div className="mt-6 rounded-2xl bg-linear-to-br from-indigo-50 to-purple-50 p-5">
 
                                     <div className="flex items-center justify-between">
 
@@ -488,13 +488,12 @@ const RateSenior = () => {
                                 <div className="h-2 overflow-hidden rounded-full bg-white/10">
 
                                     <div
-                                        className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 transition-all duration-500"
+                                        className="h-full rounded-full bg-linear-to-r from-indigo-400 via-purple-400 to-pink-400 transition-all duration-500"
                                         style={{
-                                            width: `${
-                                                (ratedCount /
+                                            width: `${(ratedCount /
                                                     categories.length) *
                                                 100
-                                            }%`,
+                                                }%`,
                                         }}
                                     />
 
@@ -532,22 +531,20 @@ const RateSenior = () => {
                                 return (
                                     <div
                                         key={category.id}
-                                        className={`group rounded-[26px] border bg-white p-5 transition-all duration-300 ${
-                                            rating
+                                        className={`group rounded-[26px] border bg-white p-5 transition-all duration-300 ${rating
                                                 ? "border-indigo-200 shadow-lg shadow-indigo-100/50"
                                                 : "border-slate-100 shadow-sm hover:-translate-y-1 hover:shadow-lg"
-                                        }`}
+                                            }`}
                                     >
 
                                         {/* Category Top */}
                                         <div className="flex items-center gap-3">
 
                                             <div
-                                                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl transition ${
-                                                    rating
+                                                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl transition ${rating
                                                         ? "bg-indigo-50"
                                                         : "bg-slate-50 group-hover:bg-indigo-50"
-                                                }`}
+                                                    }`}
                                             >
                                                 {category.emoji}
                                             </div>
@@ -590,11 +587,10 @@ const RateSenior = () => {
                                                                 )
                                                             }
                                                             aria-label={`${star} star`}
-                                                            className={`flex h-9 w-9 items-center justify-center text-2xl transition-all duration-200 hover:scale-125 ${
-                                                                star <= rating
+                                                            className={`flex h-9 w-9 items-center justify-center text-2xl transition-all duration-200 hover:scale-125 ${star <= rating
                                                                     ? "text-yellow-400"
                                                                     : "text-slate-300 hover:text-yellow-300"
-                                                            }`}
+                                                                }`}
                                                         >
                                                             ★
                                                         </button>
@@ -604,11 +600,10 @@ const RateSenior = () => {
                                             </div>
 
                                             <span
-                                                className={`text-xs font-bold ${
-                                                    rating
+                                                className={`text-xs font-bold ${rating
                                                         ? "text-indigo-600"
                                                         : "text-slate-400"
-                                                }`}
+                                                    }`}
                                             >
                                                 {rating
                                                     ? `${rating}/5`
@@ -675,11 +670,10 @@ const RateSenior = () => {
                         <button
                             type="button"
                             disabled={ratedCount !== categories.length}
-                            className={`mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-extrabold transition-all duration-300 ${
-                                ratedCount === categories.length
-                                    ? "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-xl shadow-indigo-200 hover:-translate-y-1 hover:shadow-2xl"
+                            className={`mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-extrabold transition-all duration-300 ${ratedCount === categories.length
+                                    ? "bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-xl shadow-indigo-200 hover:-translate-y-1 hover:shadow-2xl"
                                     : "cursor-not-allowed bg-slate-200 text-slate-400"
-                            }`}
+                                }`}
                         >
 
                             {ratedCount === categories.length ? (
