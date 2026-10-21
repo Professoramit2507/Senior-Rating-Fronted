@@ -25,7 +25,7 @@ import Swal from "sweetalert2";
 
 const Register = () => {
 
-    const { createUser } = useAuth();
+    const { createUser, logoutUser } = useAuth();
 
     const navigate = useNavigate();
 
@@ -139,29 +139,20 @@ const Register = () => {
             // =========================
 
             const userInfo = {
-
                 firebaseUid: result.user.uid,
-
                 name: name,
-
                 email: email,
-
                 department: department,
-
                 batch: batch,
-
                 role: "user",
-
+                status: "pending", // Waiting for admin approval
                 createdAt: new Date().toISOString(),
-
             };
-
 
             console.log(
                 "Sending user to MongoDB:",
                 userInfo
             );
-
 
             // =========================
             // SAVE USER
@@ -171,50 +162,52 @@ const Register = () => {
                 "http://localhost:3000/users",
                 {
                     method: "POST",
-
                     headers: {
                         "Content-Type":
                             "application/json",
                     },
-
                     body: JSON.stringify(userInfo),
                 }
             );
 
-
             const data = await response.json();
 
-
             if (!response.ok) {
-
                 throw new Error(
                     data.message ||
                     "Failed to save user"
                 );
-
             }
-
 
             console.log(
                 "MongoDB response:",
                 data
             );
 
+            // Sign out immediately so unapproved user cannot access platform
+            await logoutUser();
 
             // =========================
-            // SUCCESS
+            // PENDING APPROVAL NOTIFICATION
             // =========================
 
             await Swal.fire({
-                icon: "success",
-                title: "Registration Successful! 🎉",
-                text: "Welcome to CampusRate.",
+                icon: "info",
+                title: "Registration Submitted! ⏳",
+                html: `
+                    <p class="text-sm text-slate-600 mb-2">
+                        Your account <strong>${email}</strong> has been created.
+                    </p>
+                    <p class="text-xs text-amber-600 font-semibold bg-amber-50 p-3 rounded-xl border border-amber-200">
+                        🔒 Admin Permission Required: Your account is currently <strong>Pending Approval</strong>.
+                        Once an administrator approves your account in Manage Users, you will receive full access.
+                    </p>
+                `,
                 confirmButtonColor: "#4f46e5",
-                confirmButtonText: "Continue",
+                confirmButtonText: "Got It, Go to Login",
             });
 
-
-            navigate("/");
+            navigate("/login");
 
         } catch (error) {
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
 import {
     ArrowLeft,
     GraduationCap,
@@ -8,19 +8,44 @@ import {
     MessageSquare,
     Send,
     UserRound,
+    Lock,
+    ShieldAlert,
 } from "lucide-react";
+import Swal from "sweetalert2";
+import useAuth from "../Hooks/useAuth";
 
 const API_URL = "http://localhost:3000";
 
+const parseBatchNumber = (batchStr) => {
+    if (!batchStr) return null;
+    const match = String(batchStr).match(/\d+/);
+    return match ? parseInt(match[0], 10) : null;
+};
+
 const RateSenior = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const { user, dbUser } = useAuth();
 
     const [senior, setSenior] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
 
     const [ratings, setRatings] = useState({});
     const [review, setReview] = useState("");
+
+    const userBatchNum = parseBatchNumber(dbUser?.batch);
+    const seniorBatchNum = parseBatchNumber(senior?.batch);
+
+    // Rule: Cannot rate junior or classmate
+    const isJuniorOrClassmate =
+        user &&
+        dbUser &&
+        dbUser.role !== "admin" &&
+        userBatchNum !== null &&
+        seniorBatchNum !== null &&
+        seniorBatchNum >= userBatchNum;
 
     const categories = [
         {
@@ -123,6 +148,113 @@ const RateSenior = () => {
                 ) / ratedCount
             ).toFixed(1)
             : "0.0";
+
+    // =========================
+    // SUBMIT RATING
+    // =========================
+
+    const handleSubmitRating = async () => {
+        if (isJuniorOrClassmate) {
+            Swal.fire({
+                icon: "error",
+                title: "Cannot Rate Junior or Classmate! 🚫",
+                text: `You belong to ${dbUser.batch}. You can only rate seniors who started before your batch.`,
+            });
+            return;
+        }
+
+        if (user && dbUser && dbUser.status === "pending") {
+            Swal.fire({
+                icon: "warning",
+                title: "Permission Pending",
+                text: "Your account is awaiting admin approval. You will receive full access once an administrator approves your account in Manage Users.",
+            });
+            return;
+        }
+
+        if (ratedCount !== categories.length) {
+            Swal.fire({
+                icon: "warning",
+                title: "Incomplete Rating",
+                text: `Please rate all ${categories.length} categories before submitting.`,
+            });
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+
+            const payload = {
+                seniorId: String(senior._id),
+                seniorName: senior.name,
+                seniorBatch: senior.batch || "N/A",
+                seniorDepartment: senior.department || "N/A",
+                seniorImage: senior.image || "",
+                userEmail: user?.email || "anonymous@student.edu",
+                userName: user?.displayName || "Anonymous Student",
+                rating: parseFloat(average),
+                categories: ratings,
+                review: review.trim() || "Great senior! Highly recommend.",
+                status: "Published",
+                date: new Date().toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "2-digit",
+                    year: "numeric",
+                }),
+                createdAt: new Date().toISOString(),
+            };
+
+            const response = await fetch(`${API_URL}/reviews`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to submit rating");
+            }
+
+            const data = await response.json();
+            const savedItem = {
+                ...payload,
+                _id: data.insertedId || Date.now().toString(),
+            };
+
+            // Save to local storage for instant offline/guest support
+            try {
+                const localReviews = JSON.parse(
+                    localStorage.getItem("my_ratings") || "[]"
+                );
+                localStorage.setItem(
+                    "my_ratings",
+                    JSON.stringify([savedItem, ...localReviews])
+                );
+            } catch (storageErr) {
+                console.error("Local storage error:", storageErr);
+            }
+
+            await Swal.fire({
+                icon: "success",
+                title: "Rating Submitted!",
+                text: "Your anonymous rating has been submitted successfully.",
+                timer: 1800,
+                showConfirmButton: false,
+            });
+
+            navigate("/my-ratings");
+        } catch (submitErr) {
+            console.error("Submit rating error:", submitErr);
+            Swal.fire({
+                icon: "error",
+                title: "Submission Failed",
+                text: submitErr.message || "Failed to submit rating. Please try again.",
+            });
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     // =========================
     // LOADING
@@ -412,9 +544,39 @@ const RateSenior = () => {
                     ================================================== */}
 
                     <div>
+                        {isJuniorOrClassmate ? (
+                            <div className="rounded-[30px] border border-amber-200 bg-white p-8 sm:p-10 text-center shadow-md">
+                                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                                    <Lock size={32} />
+                                </div>
 
-                        {/* Rating Header */}
-                        <div className="rounded-[30px] bg-slate-900 p-6 text-white shadow-xl sm:p-7">
+                                <h2 className="mt-5 text-2xl font-extrabold text-slate-900">
+                                    Cannot Rate Junior or Classmate! 🚫
+                                </h2>
+
+                                <p className="mx-auto mt-3 max-w-md text-sm text-slate-600 leading-6">
+                                    You are registered as a <strong>{dbUser?.batch}</strong> student.
+                                    <strong> {senior.name}</strong> is in <strong>{senior.batch}</strong>, which makes them your{" "}
+                                    <span className="font-bold text-amber-600">
+                                        {seniorBatchNum === userBatchNum ? "classmate" : "junior"}
+                                    </span>.
+                                    On CampusRate, you can only rate seniors who belong to batches before yours.
+                                </p>
+
+                                <div className="mt-7">
+                                    <Link
+                                        to="/seniors"
+                                        className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:scale-105"
+                                    >
+                                        <ArrowLeft size={16} />
+                                        Back to Seniors Directory
+                                    </Link>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Rating Header */}
+                                <div className="rounded-[30px] bg-slate-900 p-6 text-white shadow-xl sm:p-7">
 
                             <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
 
@@ -669,14 +831,20 @@ const RateSenior = () => {
 
                         <button
                             type="button"
-                            disabled={ratedCount !== categories.length}
-                            className={`mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-extrabold transition-all duration-300 ${ratedCount === categories.length
-                                    ? "bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-xl shadow-indigo-200 hover:-translate-y-1 hover:shadow-2xl"
+                            onClick={handleSubmitRating}
+                            disabled={ratedCount !== categories.length || submitting}
+                            className={`mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-extrabold transition-all duration-300 ${ratedCount === categories.length && !submitting
+                                    ? "bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-xl shadow-indigo-200 hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
                                     : "cursor-not-allowed bg-slate-200 text-slate-400"
                                 }`}
                         >
 
-                            {ratedCount === categories.length ? (
+                            {submitting ? (
+                                <>
+                                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                    Submitting Rating...
+                                </>
+                            ) : ratedCount === categories.length ? (
                                 <>
                                     <Send size={18} />
                                     Submit Rating
@@ -695,6 +863,8 @@ const RateSenior = () => {
                             Your review will be submitted anonymously and
                             cannot be linked publicly to your profile.
                         </p>
+                        </>
+                    )}
 
                     </div>
                 </div>

@@ -68,7 +68,7 @@ import Reviews from "../Components/NavComponents/Reviews";
 import RateSenior from "../Components/NavComponents/Rate";
 import Login from "../Components/Auth/Login";
 import Register from "../Components/Auth/Register";
-import AdminNavbar from "../Components/Admin/AdminNavbar";
+import AdminLayout from "../Components/Admin/AdminLayout";
 import ManageUsers from "../Components/Admin/ManageUsers";
 import ManageReviews from "../Components/Admin/ManageReviews";
 import Dashboard from "../Components/Admin/Dashboard";
@@ -114,7 +114,7 @@ export const router = createBrowserRouter([
     // ================= ADMIN =================
     {
         path: "/admin",
-        element: <AdminNavbar />,
+        element: <AdminLayout />,
         children: [
             {
                 index: true,
@@ -122,10 +122,18 @@ export const router = createBrowserRouter([
             },
             {
                 path: "users",
-                element: <ManageUsers/>,
+                element: <ManageUsers />,
+            },
+            {
+                path: "manage-users",
+                element: <ManageUsers />,
             },
             {
                 path: "reviews",
+                element: <ManageReviews />,
+            },
+            {
+                path: "manage-reviews",
                 element: <ManageReviews />,
             },
         ],

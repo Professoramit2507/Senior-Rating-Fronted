@@ -14,7 +14,7 @@ import Swal from "sweetalert2";
 import useAuth from "../Components/Hooks/useAuth";
 
 const Navber = () => {
-    const { user, logoutUser } = useAuth();
+    const { user, dbUser, logoutUser } = useAuth();
 
     const handleLogout = async () => {
         try {
@@ -153,6 +153,16 @@ const Navber = () => {
 
                         {user ? (
                             <>
+                                {dbUser?.role === "admin" && (
+                                    <Link
+                                        to="/admin"
+                                        className="flex items-center gap-1.5 rounded-xl bg-purple-50 px-3 py-2 text-xs font-bold text-purple-700 border border-purple-200 transition hover:bg-purple-100"
+                                    >
+                                        <Sparkles size={14} />
+                                        Admin Panel
+                                    </Link>
+                                )}
+
                                 {/* ================= PROFILE ================= */}
                                 <Link
                                     to="/profile"

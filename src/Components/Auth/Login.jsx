@@ -378,7 +378,7 @@ import Swal from "sweetalert2";
 import useAuth from "../Hooks/useAuth";
 
 const Login = () => {
-    const { loginUser } = useAuth();
+    const { loginUser, logoutUser } = useAuth();
     const navigate = useNavigate();
 
     const [showPassword, setShowPassword] = useState(false);
@@ -416,7 +416,7 @@ const Login = () => {
 
         // MongoDB থেকে user information নেওয়া
         const response = await fetch(
-            `http://localhost:3000/user?email=${loggedInUser.email}`
+            `http://localhost:3000/user?email=${encodeURIComponent(loggedInUser.email)}`
         );
 
         if (!response.ok) {
@@ -427,24 +427,75 @@ const Login = () => {
 
         console.log("MongoDB user:", userData);
 
+        // =========================
+        // 1. ADMIN CHECK
+        // =========================
+        if (userData?.role === "admin") {
+            await Swal.fire({
+                icon: "success",
+                title: "Welcome Admin! 👑",
+                text: "Login successful. Redirecting to Admin Panel...",
+                confirmButtonColor: "#4f46e5",
+                timer: 1500,
+                showConfirmButton: false,
+            });
+            navigate("/admin");
+            return;
+        }
+
+        // =========================
+        // 2. APPROVAL / PERMISSION CHECK
+        // =========================
+        if (userData?.status === "pending") {
+            // User not approved by admin yet!
+            await logoutUser();
+
+            await Swal.fire({
+                icon: "warning",
+                title: "Approval Pending! ⏳",
+                html: `
+                    <div class="text-left space-y-2">
+                        <p class="text-sm text-slate-700">
+                            Hello <strong>${userData?.name || "Student"}</strong>, your registration has been received!
+                        </p>
+                        <div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
+                            <strong>🔒 Admin Permission Required:</strong>
+                            Your account is awaiting approval from the administration. Once an admin grants you permission from <strong>Manage Users</strong>, you will be able to log in.
+                        </div>
+                    </div>
+                `,
+                confirmButtonColor: "#4f46e5",
+                confirmButtonText: "I Understand",
+            });
+            return;
+        }
+
+        if (userData?.status === "rejected") {
+            // User rejected by admin
+            await logoutUser();
+
+            await Swal.fire({
+                icon: "error",
+                title: "Access Restricted! 🚫",
+                text: "Your account registration was not approved by the administrator.",
+                confirmButtonColor: "#ef4444",
+            });
+            return;
+        }
+
+        // =========================
+        // 3. APPROVED USER ACCESS
+        // =========================
         await Swal.fire({
             icon: "success",
             title: "Welcome Back! 🎉",
-            text: "Login successful!",
+            text: `Login successful. Welcome, ${userData?.name || "Student"}!`,
             confirmButtonColor: "#4f46e5",
             timer: 1500,
             showConfirmButton: false,
         });
 
-        // =========================
-        // ADMIN CHECK
-        // =========================
-
-        if (userData?.role === "admin") {
-            navigate("/admin");
-        } else {
-            navigate("/");
-        }
+        navigate("/");
 
     } catch (error) {
         console.error("Login error:", error);

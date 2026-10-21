@@ -14,7 +14,28 @@ export const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [dbUser, setDbUser] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const fetchDbUser = async (email) => {
+        if (!email) {
+            setDbUser(null);
+            return null;
+        }
+        try {
+            const res = await fetch(
+                `http://localhost:3000/user?email=${encodeURIComponent(email)}`
+            );
+            if (res.ok) {
+                const data = await res.json();
+                setDbUser(data);
+                return data;
+            }
+        } catch (error) {
+            console.error("fetchDbUser error:", error);
+        }
+        return null;
+    };
 
     // Register
     const createUser = async (email, password, name) => {
@@ -44,6 +65,7 @@ const AuthProvider = ({ children }) => {
 
     // Logout
     const logoutUser = () => {
+        setDbUser(null);
         return signOut(auth);
     };
 
@@ -51,8 +73,13 @@ const AuthProvider = ({ children }) => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(
             auth,
-            (currentUser) => {
+            async (currentUser) => {
                 setUser(currentUser);
+                if (currentUser?.email) {
+                    await fetchDbUser(currentUser.email);
+                } else {
+                    setDbUser(null);
+                }
                 setLoading(false);
             }
         );
@@ -60,8 +87,16 @@ const AuthProvider = ({ children }) => {
         return () => unsubscribe();
     }, []);
 
+    const isApproved =
+        dbUser?.role === "admin" || dbUser?.status === "approved";
+
     const authInfo = {
         user,
+        dbUser,
+        isApproved,
+        role: dbUser?.role || "user",
+        status: dbUser?.status || "pending",
+        fetchDbUser,
         loading,
         createUser,
         loginUser,

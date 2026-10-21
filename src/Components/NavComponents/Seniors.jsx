@@ -464,17 +464,62 @@ import {
   X,
   UserRound,
   Sparkles,
+  ShieldCheck,
+  Info,
+  Lock,
 } from "lucide-react";
+import useAuth from "../Hooks/useAuth";
 
 const API_URL = "http://localhost:3000";
 
-const Seniors = () => {
-  const [seniors, setSeniors] = useState([]);
+const parseBatchNumber = (batchStr) => {
+  if (!batchStr) return null;
+  const match = String(batchStr).match(/\d+/);
+  return match ? parseInt(match[0], 10) : null;
+};
 
+const getOrdinal = (n) => {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
+const Seniors = () => {
+  const { user, dbUser } = useAuth();
+
+  const [seniors, setSeniors] = useState([]);
   const [search, setSearch] = useState("");
   const [batch, setBatch] = useState("All");
   const [department, setDepartment] = useState("All");
   const [sortBy, setSortBy] = useState("rating");
+
+  // User batch number (e.g., 3 for "3rd Batch").
+  // Admins are not restricted by batch.
+  const userBatchNumber = useMemo(() => {
+    if (!user || !dbUser?.batch || dbUser?.role === "admin") return null;
+    return parseBatchNumber(dbUser.batch);
+  }, [user, dbUser]);
+
+  // Available senior batches for this student.
+  // For 3rd batch: only 1st and 2nd batch are seniors!
+  const availableBatches = useMemo(() => {
+    if (userBatchNumber === null) {
+      return [
+        "1st Batch",
+        "2nd Batch",
+        "3rd Batch",
+        "4th Batch",
+        "5th Batch",
+        "6th Batch",
+        "7th Batch",
+      ];
+    }
+    const list = [];
+    for (let i = 1; i < userBatchNumber; i++) {
+      list.push(`${getOrdinal(i)} Batch`);
+    }
+    return list;
+  }, [userBatchNumber]);
 
   // =========================
   // GET SENIORS FROM BACKEND
@@ -502,11 +547,20 @@ const Seniors = () => {
   }, []);
 
   // =========================
-  // FILTER + SORT
+  // FILTER + SORT (STRICT SENIOR RULE)
   // =========================
 
   const filteredSeniors = useMemo(() => {
     let result = seniors.filter((senior) => {
+      // RULE: You cannot rate your juniors or classmates!
+      // If user is 3rd batch, only seniors where seniorBatchNum < 3 (1st & 2nd) are shown!
+      if (userBatchNumber !== null) {
+        const sNum = parseBatchNumber(senior.batch);
+        if (sNum === null || sNum >= userBatchNumber) {
+          return false;
+        }
+      }
+
       const name = senior.name?.toLowerCase() || "";
       const dept = senior.department?.toLowerCase() || "";
       const searchValue = search.toLowerCase();
@@ -558,6 +612,7 @@ const Seniors = () => {
     batch,
     department,
     sortBy,
+    userBatchNumber,
   ]);
 
   // =========================
@@ -572,23 +627,31 @@ const Seniors = () => {
   };
 
   // =========================
-  // DYNAMIC STATS
+  // DYNAMIC STATS (SCOPED TO ELIGIBLE SENIORS)
   // =========================
 
-  const totalSeniors = seniors.length;
+  const eligibleSeniors = useMemo(() => {
+    if (userBatchNumber === null) return seniors;
+    return seniors.filter((s) => {
+      const sNum = parseBatchNumber(s.batch);
+      return sNum !== null && sNum < userBatchNumber;
+    });
+  }, [seniors, userBatchNumber]);
+
+  const totalSeniors = eligibleSeniors.length;
 
   const averageRating =
-    seniors.length > 0
+    eligibleSeniors.length > 0
       ? (
-        seniors.reduce(
+        eligibleSeniors.reduce(
           (total, senior) =>
             total + Number(senior.rating || 0),
           0
-        ) / seniors.length
+        ) / eligibleSeniors.length
       ).toFixed(1)
       : "0.0";
 
-  const totalReviews = seniors.reduce(
+  const totalReviews = eligibleSeniors.reduce(
     (total, senior) =>
       total + Number(senior.reviews || 0),
     0
@@ -651,7 +714,7 @@ const Seniors = () => {
               </p>
 
               <p className="mt-1 text-xs text-indigo-100">
-                Seniors
+                {userBatchNumber !== null ? "Eligible Seniors" : "Seniors"}
               </p>
 
             </div>
@@ -681,6 +744,23 @@ const Seniors = () => {
             </div>
 
           </div>
+
+          {/* Student Scope Banner */}
+          {userBatchNumber !== null && (
+            <div className="mx-auto mt-6 max-w-xl rounded-2xl border border-white/20 bg-white/15 p-3.5 backdrop-blur-md text-white text-xs">
+              <div className="flex items-center justify-center gap-2 font-bold">
+                <GraduationCap size={18} className="text-yellow-300" />
+                <span>
+                  Logged in as {dbUser?.batch} Student
+                </span>
+              </div>
+              <p className="mt-1 text-[11px] text-indigo-100">
+                {userBatchNumber === 1
+                  ? "As a 1st Batch student, you are the most senior batch on campus."
+                  : `Showing your seniors only (${availableBatches.join(", ")}). You cannot rate juniors or classmates.`}
+              </p>
+            </div>
+          )}
 
         </div>
       </div>
@@ -736,36 +816,16 @@ const Seniors = () => {
               >
 
                 <option value="All">
-                  All Batches
+                  {userBatchNumber !== null
+                    ? `All My Seniors (${availableBatches.join(", ") || "None"})`
+                    : "All Batches"}
                 </option>
 
-                <option value="7th Batch">
-                  7th Batch
-                </option>
-
-                <option value="6th Batch">
-                  6th Batch
-                </option>
-
-                <option value="5th Batch">
-                  5th Batch
-                </option>
-
-                <option value="4th Batch">
-                  4th Batch
-                </option>
-
-                <option value="3rd Batch">
-                  3rd Batch
-                </option>
-
-                <option value="2nd Batch">
-                  2nd Batch
-                </option>
-
-                <option value="1st Batch">
-                  1st Batch
-                </option>
+                {availableBatches.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
 
               </select>
 
@@ -1016,28 +1076,36 @@ const Seniors = () => {
               EMPTY STATE
           ========================= */
 
-          <div className="rounded-3xl border border-slate-200 bg-white py-20 text-center">
+          <div className="rounded-3xl border border-slate-200 bg-white py-20 px-6 text-center shadow-xs">
 
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
-
-              <Search size={28} />
-
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+              {userBatchNumber === 1 ? (
+                <GraduationCap size={32} />
+              ) : (
+                <Search size={28} />
+              )}
             </div>
 
             <h3 className="mt-5 text-xl font-bold text-slate-900">
-              No Seniors Found
+              {userBatchNumber === 1
+                ? "You are from 1st Batch! 🎓"
+                : "No Seniors Found"}
             </h3>
 
-            <p className="mt-2 text-slate-500">
-              Try another name, batch, or department.
+            <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
+              {userBatchNumber === 1
+                ? "1st Batch is the most senior batch on campus. As a pioneer student, there are no senior batches above you to rate!"
+                : "Try another name, department, or filter."}
             </p>
 
-            <button
-              onClick={clearFilters}
-              className="mt-6 rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700"
-            >
-              Clear Filters
-            </button>
+            {userBatchNumber !== 1 && (
+              <button
+                onClick={clearFilters}
+                className="mt-6 rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700"
+              >
+                Clear Filters
+              </button>
+            )}
 
           </div>
 

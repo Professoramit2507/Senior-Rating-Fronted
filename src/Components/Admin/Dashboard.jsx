@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
     Users,
     Star,
@@ -8,15 +9,62 @@ import {
     ShieldCheck,
     Activity,
     ChevronRight,
+    Clock,
 } from "lucide-react";
 import { Link } from "react-router";
 
 const Dashboard = () => {
+    const [counts, setCounts] = useState({
+        seniors: 0,
+        users: 0,
+        reviews: 0,
+        avgRating: "0.0",
+        pendingUsers: 0,
+    });
+
+    useEffect(() => {
+        Promise.all([
+            fetch("http://localhost:3000/senior")
+                .then((r) => r.json())
+                .catch(() => []),
+            fetch("http://localhost:3000/users")
+                .then((r) => r.json())
+                .catch(() => []),
+            fetch("http://localhost:3000/reviews")
+                .then((r) => r.json())
+                .catch(() => []),
+        ]).then(([seniorsData, usersData, reviewsData]) => {
+            const sCount = Array.isArray(seniorsData) ? seniorsData.length : 0;
+            const uCount = Array.isArray(usersData) ? usersData.length : 0;
+            const rCount = Array.isArray(reviewsData) ? reviewsData.length : 0;
+            const pending = Array.isArray(usersData)
+                ? usersData.filter((u) => u.status === "pending").length
+                : 0;
+            const avg =
+                rCount > 0
+                    ? (
+                          reviewsData.reduce(
+                              (acc, r) => acc + Number(r.rating || 0),
+                              0
+                          ) / rCount
+                      ).toFixed(1)
+                    : "0.0";
+
+            setCounts({
+                seniors: sCount,
+                users: uCount,
+                reviews: rCount,
+                avgRating: avg,
+                pendingUsers: pending,
+            });
+        });
+    }, []);
+
     const stats = [
         {
             title: "Total Seniors",
-            value: "27",
-            change: "+12%",
+            value: String(counts.seniors),
+            change: "Live",
             description: "Senior profiles",
             icon: Users,
             gradient: "from-indigo-500 to-purple-600",
@@ -25,9 +73,9 @@ const Dashboard = () => {
         },
         {
             title: "Total Users",
-            value: "0",
-            change: "0%",
-            description: "Registered users",
+            value: String(counts.users),
+            change: counts.pendingUsers > 0 ? `${counts.pendingUsers} Pending` : "All Active",
+            description: "Registered students",
             icon: GraduationCap,
             gradient: "from-blue-500 to-cyan-500",
             bg: "bg-blue-50",
@@ -35,8 +83,8 @@ const Dashboard = () => {
         },
         {
             title: "Total Reviews",
-            value: "0",
-            change: "0%",
+            value: String(counts.reviews),
+            change: "Real-time",
             description: "Submitted reviews",
             icon: MessageSquare,
             gradient: "from-pink-500 to-rose-500",
@@ -45,9 +93,9 @@ const Dashboard = () => {
         },
         {
             title: "Average Rating",
-            value: "0.0",
-            change: "0%",
-            description: "Platform rating",
+            value: counts.avgRating,
+            change: "Platform",
+            description: "Campus satisfaction",
             icon: Star,
             gradient: "from-yellow-400 to-orange-500",
             bg: "bg-yellow-50",
@@ -57,25 +105,31 @@ const Dashboard = () => {
 
     const quickActions = [
         {
-            title: "Manage Seniors",
-            description: "View and manage senior profiles",
-            icon: Users,
-            link: "/admin/manage-users",
+            title: "Manage Users & Permissions",
+            description:
+                counts.pendingUsers > 0
+                    ? `${counts.pendingUsers} student(s) waiting for access permission`
+                    : "Review permissions and user roles",
+            icon: counts.pendingUsers > 0 ? Clock : Users,
+            link: "/admin/users",
             gradient: "from-indigo-500 to-purple-600",
+            alertBadge: counts.pendingUsers > 0 ? `${counts.pendingUsers} Pending` : null,
         },
         {
             title: "Manage Reviews",
-            description: "Review and moderate reviews",
+            description: "Moderate and review anonymous student feedback",
             icon: MessageSquare,
-            link: "/admin/manage-reviews",
+            link: "/admin/reviews",
             gradient: "from-pink-500 to-rose-500",
+            alertBadge: null,
         },
         {
-            title: "Add Senior",
-            description: "Create a new senior profile",
-            icon: UserPlus,
-            link: "/admin/add-senior",
+            title: "View Seniors Directory",
+            description: "Browse all senior mentors and profile ratings",
+            icon: Users,
+            link: "/seniors",
             gradient: "from-emerald-500 to-teal-500",
+            alertBadge: null,
         },
     ];
 
@@ -221,9 +275,16 @@ const Dashboard = () => {
                                     <Icon size={22} />
                                 </div>
 
-                                <h3 className="text-lg font-bold text-slate-900">
-                                    {action.title}
-                                </h3>
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-bold text-slate-900">
+                                        {action.title}
+                                    </h3>
+                                    {action.alertBadge && (
+                                        <span className="rounded-full bg-amber-100 border border-amber-200 px-2.5 py-0.5 text-[11px] font-bold text-amber-700 animate-pulse">
+                                            {action.alertBadge}
+                                        </span>
+                                    )}
+                                </div>
 
                                 <p className="mt-2 text-sm leading-6 text-slate-500">
                                     {action.description}
