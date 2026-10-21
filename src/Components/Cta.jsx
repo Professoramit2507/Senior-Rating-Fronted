@@ -5,88 +5,75 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
+import { Link } from "react-router";
 
 const FinalCTA = () => {
   return (
-    <section className="relative overflow-hidden bg-slate-950 py-24">
-
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-950" />
-
-      {/* Glow */}
-      <div className="absolute -left-20 top-10 h-80 w-80 rounded-full bg-indigo-500/30 blur-3xl" />
-
-      <div className="absolute -right-20 bottom-10 h-96 w-96 rounded-full bg-pink-500/20 blur-3xl" />
-
+    <section className="relative bg-slate-900 py-20 text-white border-t border-slate-800">
       <div className="relative mx-auto max-w-5xl px-6 text-center">
-
         {/* Icon */}
-        <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-indigo-500 to-pink-500 text-white shadow-2xl shadow-purple-500/30">
-          <Star size={38} fill="currentColor" />
+        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-xs">
+          <Star size={26} className="fill-white" />
         </div>
 
         {/* Badge */}
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-semibold text-indigo-200 backdrop-blur-md">
-          <Sparkles size={16} />
-          Your Voice Matters
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3.5 py-1.5 text-xs font-semibold text-slate-300">
+          <Sparkles size={13} className="text-amber-400" />
+          Make an Impact
         </div>
 
         {/* Heading */}
-        <h2 className="text-4xl font-extrabold leading-tight text-white md:text-6xl">
-          Ready to Make Your
-          <br />
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Voice Heard?
-          </span>
+        <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+          Ready to Make Your <span className="text-indigo-400">Voice Count?</span>
         </h2>
 
-        <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-400">
-          Rate your seniors honestly, help them grow, and contribute to a
-          better campus community — all while keeping your identity private.
+        <p className="mx-auto mt-4 max-w-2xl text-base sm:text-lg leading-relaxed text-slate-300">
+          Rate your seniors with verified anonymity, encourage excellence across batches, and foster a transparent campus environment.
         </p>
 
         {/* Buttons */}
-        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-
-          <button className="group flex items-center gap-2 rounded-xl bg-white px-8 py-4 font-bold text-indigo-700 shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl">
-            Rate a Senior
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link
+            to="/seniors"
+            className="group inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-slate-900 shadow-xs transition-colors hover:bg-slate-100"
+          >
+            Rate a Senior Now
             <ArrowRight
-              size={19}
+              size={16}
               className="transition-transform group-hover:translate-x-1"
             />
-          </button>
+          </Link>
 
-          <button className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-8 py-4 font-bold text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20">
-            <Users size={19} />
-            Explore Seniors
-          </button>
-
+          <Link
+            to="/seniors"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-6 py-3.5 text-sm font-semibold text-slate-200 transition-colors hover:bg-slate-700"
+          >
+            <Users size={16} />
+            Explore Seniors Directory
+          </Link>
         </div>
 
-        {/* Trust */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400">
-
+        {/* Trust Badges */}
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 border-t border-slate-800/80 pt-8">
           <div className="flex items-center gap-2">
-            <ShieldCheck size={18} className="text-emerald-400" />
-            100% Anonymous
+            <ShieldCheck size={16} className="text-emerald-400" />
+            100% Anonymous Delivery
           </div>
 
-          <div className="h-1 w-1 rounded-full bg-slate-600" />
+          <div className="h-1 w-1 rounded-full bg-slate-700 hidden sm:block" />
 
           <div className="flex items-center gap-2">
-            <Star size={18} className="text-yellow-400" />
-            Honest Feedback
+            <Star size={16} className="text-amber-400 fill-amber-400" />
+            Objective Peer Evaluation
           </div>
 
-          <div className="h-1 w-1 rounded-full bg-slate-600" />
+          <div className="h-1 w-1 rounded-full bg-slate-700 hidden sm:block" />
 
           <div className="flex items-center gap-2">
-            <Sparkles size={18} className="text-purple-400" />
-            Built for Students
+            <Sparkles size={16} className="text-indigo-400" />
+            Verified Batch Architecture
           </div>
-
         </div>
-
       </div>
     </section>
   );

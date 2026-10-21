@@ -268,16 +268,16 @@ const ManageUsers = () => {
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 text-white animate-fade-in">
             {/* ================= HEADER ================= */}
             <div>
-                <p className="text-sm font-semibold text-indigo-600">
+                <p className="text-sm font-semibold text-indigo-400">
                     User Management
                 </p>
-                <h1 className="mt-1 text-3xl font-extrabold text-slate-900">
+                <h1 className="mt-1 text-3xl font-extrabold text-white">
                     Manage Users & Permissions
                 </h1>
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="mt-2 text-sm text-slate-400">
                     Review registered students, grant full access permission, or manage administrative roles.
                 </p>
             </div>
@@ -285,17 +285,17 @@ const ManageUsers = () => {
             {/* ================= STATS CARDS ================= */}
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {/* Total */}
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                 Total Registered
                             </p>
-                            <h2 className="mt-2 text-3xl font-extrabold text-slate-900">
+                            <h2 className="mt-2 text-3xl font-extrabold text-white">
                                 {users.length}
                             </h2>
                         </div>
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800 text-slate-300">
                             <UsersIcon size={22} />
                         </div>
                     </div>
@@ -304,22 +304,22 @@ const ManageUsers = () => {
                 {/* Pending Approval */}
                 <div
                     onClick={() => setStatusFilter("pending")}
-                    className={`cursor-pointer rounded-2xl border p-5 shadow-xs transition hover:shadow-md ${
+                    className={`cursor-pointer rounded-2xl border p-5 shadow-xl transition hover:border-amber-400 ${
                         statusFilter === "pending"
-                            ? "border-amber-400 bg-amber-50/60 ring-2 ring-amber-300"
-                            : "border-slate-200 bg-white"
+                            ? "border-amber-400 bg-amber-500/10 ring-1 ring-amber-400"
+                            : "border-slate-800 bg-slate-900"
                     }`}
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">
+                            <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
                                 Pending Permission
                             </p>
-                            <h2 className="mt-2 text-3xl font-extrabold text-amber-600">
+                            <h2 className="mt-2 text-3xl font-extrabold text-amber-400">
                                 {pendingCount}
                             </h2>
                         </div>
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400">
                             <Clock size={22} />
                         </div>
                     </div>
@@ -328,22 +328,22 @@ const ManageUsers = () => {
                 {/* Approved */}
                 <div
                     onClick={() => setStatusFilter("approved")}
-                    className={`cursor-pointer rounded-2xl border p-5 shadow-xs transition hover:shadow-md ${
+                    className={`cursor-pointer rounded-2xl border p-5 shadow-xl transition hover:border-emerald-400 ${
                         statusFilter === "approved"
-                            ? "border-emerald-400 bg-emerald-50/60 ring-2 ring-emerald-300"
-                            : "border-slate-200 bg-white"
+                            ? "border-emerald-400 bg-emerald-500/10 ring-1 ring-emerald-400"
+                            : "border-slate-800 bg-slate-900"
                     }`}
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">
+                            <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
                                 Approved / Active
                             </p>
-                            <h2 className="mt-2 text-3xl font-extrabold text-emerald-600">
+                            <h2 className="mt-2 text-3xl font-extrabold text-emerald-400">
                                 {approvedCount}
                             </h2>
                         </div>
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
                             <CheckCircle2 size={22} />
                         </div>
                     </div>
@@ -352,22 +352,22 @@ const ManageUsers = () => {
                 {/* Admins */}
                 <div
                     onClick={() => setStatusFilter("admin")}
-                    className={`cursor-pointer rounded-2xl border p-5 shadow-xs transition hover:shadow-md ${
+                    className={`cursor-pointer rounded-2xl border p-5 shadow-xl transition hover:border-purple-400 ${
                         statusFilter === "admin"
-                            ? "border-purple-400 bg-purple-50/60 ring-2 ring-purple-300"
-                            : "border-slate-200 bg-white"
+                            ? "border-purple-400 bg-purple-500/10 ring-1 ring-purple-400"
+                            : "border-slate-800 bg-slate-900"
                     }`}
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-xs font-semibold text-purple-600 uppercase tracking-wider">
+                            <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
                                 Administrators
                             </p>
-                            <h2 className="mt-2 text-3xl font-extrabold text-purple-600">
+                            <h2 className="mt-2 text-3xl font-extrabold text-purple-400">
                                 {adminCount}
                             </h2>
                         </div>
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400">
                             <ShieldCheck size={22} />
                         </div>
                     </div>
@@ -380,14 +380,14 @@ const ManageUsers = () => {
                 <div className="relative w-full sm:max-w-xs">
                     <Search
                         size={17}
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
                     />
                     <input
                         type="text"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search by name, email, batch..."
-                        className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-xs font-medium outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50"
+                        className="w-full rounded-xl border border-slate-800 bg-slate-900 py-2.5 pl-10 pr-4 text-xs font-medium text-white placeholder:text-slate-500 outline-none transition focus:border-indigo-500"
                     />
                 </div>
 
@@ -399,7 +399,7 @@ const ManageUsers = () => {
                             id: "pending",
                             label: "Pending",
                             badge: pendingCount,
-                            badgeColor: "bg-amber-500 text-white",
+                            badgeColor: "bg-amber-500 text-slate-950",
                         },
                         { id: "approved", label: "Approved" },
                         { id: "admin", label: "Admins" },
@@ -407,10 +407,10 @@ const ManageUsers = () => {
                         <button
                             key={tab.id}
                             onClick={() => setStatusFilter(tab.id)}
-                            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition ${
+                            className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition cursor-pointer ${
                                 statusFilter === tab.id
-                                    ? "bg-slate-900 text-white shadow-xs"
-                                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                                    ? "bg-indigo-600 text-white shadow-xs"
+                                    : "bg-slate-900 text-slate-300 border border-slate-800 hover:bg-slate-800"
                             }`}
                         >
                             <span>{tab.label}</span>
@@ -429,33 +429,33 @@ const ManageUsers = () => {
             </div>
 
             {/* ================= USERS TABLE ================= */}
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xs">
+            <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-xl">
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-[850px]">
-                        <thead className="bg-slate-50 border-b border-slate-200">
+                        <thead className="bg-slate-950/80 border-b border-slate-800">
                             <tr>
-                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-400">
                                     #
                                 </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-400">
                                     User Info
                                 </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-400">
                                     Dept & Batch
                                 </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-400">
                                     Role
                                 </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-500">
+                                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-400">
                                     Permission Status
                                 </th>
-                                <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
+                                <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-400">
                                     Actions / Permission
                                 </th>
                             </tr>
                         </thead>
 
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-800">
                             {filteredUsers.map((user, index) => {
                                 const status = user.status || "approved";
                                 const isPending = status === "pending";
@@ -466,26 +466,26 @@ const ManageUsers = () => {
                                 return (
                                     <tr
                                         key={user._id}
-                                        className={`transition hover:bg-slate-50/70 ${
-                                            isPending ? "bg-amber-50/30" : ""
+                                        className={`transition hover:bg-slate-800/50 ${
+                                            isPending ? "bg-amber-500/5" : ""
                                         }`}
                                     >
                                         {/* Index */}
-                                        <td className="px-6 py-5 text-sm font-semibold text-slate-400">
+                                        <td className="px-6 py-5 text-sm font-semibold text-slate-500">
                                             {index + 1}
                                         </td>
 
                                         {/* User */}
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-3">
-                                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 font-bold text-white shadow-xs">
+                                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 font-bold text-white shadow-xs">
                                                     {(user.name || "U")
                                                         .charAt(0)
                                                         .toUpperCase()}
                                                 </div>
 
                                                 <div>
-                                                    <p className="font-bold text-slate-900 leading-tight">
+                                                    <p className="font-bold text-white leading-tight">
                                                         {user.name}
                                                     </p>
                                                     <p className="text-xs text-slate-400 leading-tight mt-0.5">
@@ -496,8 +496,8 @@ const ManageUsers = () => {
                                         </td>
 
                                         {/* Dept & Batch */}
-                                        <td className="px-6 py-5 text-sm font-medium text-slate-600">
-                                            <div className="text-slate-800 font-semibold">
+                                        <td className="px-6 py-5 text-sm font-medium text-slate-300">
+                                            <div className="text-white font-semibold">
                                                 {user.department || "N/A"}
                                             </div>
                                             <div className="text-xs text-slate-400">
@@ -508,12 +508,12 @@ const ManageUsers = () => {
                                         {/* Role */}
                                         <td className="px-6 py-5">
                                             {isAdmin ? (
-                                                <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700 border border-purple-200">
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 px-3 py-1 text-xs font-bold text-purple-400 border border-purple-500/30">
                                                     <ShieldCheck size={13} />
                                                     Admin
                                                 </span>
                                             ) : (
-                                                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-400">
                                                     User
                                                 </span>
                                             )}
@@ -522,17 +522,17 @@ const ManageUsers = () => {
                                         {/* Permission Status */}
                                         <td className="px-6 py-5">
                                             {isPending ? (
-                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 border border-amber-200 animate-pulse">
+                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-400 border border-amber-500/30 animate-pulse">
                                                     <Clock size={13} />
                                                     Pending Approval
                                                 </span>
                                             ) : isApproved ? (
-                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 border border-emerald-200">
+                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/30">
                                                     <CheckCircle2 size={13} />
                                                     Approved
                                                 </span>
                                             ) : (
-                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700 border border-red-200">
+                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1 text-xs font-bold text-red-400 border border-red-500/30">
                                                     <XCircle size={13} />
                                                     Rejected
                                                 </span>
@@ -551,7 +551,7 @@ const ManageUsers = () => {
                                                                 "approved"
                                                             )
                                                         }
-                                                        className="inline-flex items-center gap-1 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-700"
+                                                        className="inline-flex items-center gap-1 rounded-xl bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition hover:bg-emerald-500 cursor-pointer"
                                                         title="Grant Full Access"
                                                     >
                                                         <CheckCircle2 size={14} />
@@ -568,7 +568,7 @@ const ManageUsers = () => {
                                                                 "pending"
                                                             )
                                                         }
-                                                        className="inline-flex items-center gap-1 rounded-xl border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
+                                                        className="inline-flex items-center gap-1 rounded-xl border border-amber-500/30 bg-amber-500/10 px-2.5 py-1.5 text-xs font-semibold text-amber-400 transition hover:bg-amber-500/20 cursor-pointer"
                                                         title="Revoke Permission"
                                                     >
                                                         <Lock size={13} />
@@ -585,7 +585,7 @@ const ManageUsers = () => {
                                                                 "rejected"
                                                             )
                                                         }
-                                                        className="inline-flex items-center gap-1 rounded-xl border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100"
+                                                        className="inline-flex items-center gap-1 rounded-xl border border-red-500/30 bg-red-500/10 px-2.5 py-1.5 text-xs font-semibold text-red-400 transition hover:bg-red-500/20 cursor-pointer"
                                                         title="Reject Request"
                                                     >
                                                         <XCircle size={14} />
@@ -598,10 +598,10 @@ const ManageUsers = () => {
                                                     onClick={() =>
                                                         handleToggleRole(user)
                                                     }
-                                                    className={`rounded-xl border p-2 transition ${
+                                                    className={`rounded-xl border p-2 transition cursor-pointer ${
                                                         isAdmin
-                                                            ? "border-purple-200 bg-purple-50 text-purple-600 hover:bg-purple-100"
-                                                            : "border-slate-200 text-slate-500 hover:bg-slate-100"
+                                                            ? "border-purple-500/30 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20"
+                                                            : "border-slate-800 bg-slate-950 text-slate-400 hover:bg-slate-800 hover:text-white"
                                                     }`}
                                                     title={
                                                         isAdmin
@@ -617,7 +617,7 @@ const ManageUsers = () => {
                                                     onClick={() =>
                                                         handleDeleteUser(user)
                                                     }
-                                                    className="rounded-xl p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                                                    className="rounded-xl p-2 text-slate-500 transition hover:bg-red-500/10 hover:text-red-400 cursor-pointer"
                                                     title="Delete user"
                                                 >
                                                     <Trash2 size={15} />
@@ -635,12 +635,12 @@ const ManageUsers = () => {
                     <div className="py-16 text-center">
                         <AlertCircle
                             size={32}
-                            className="mx-auto text-slate-300"
+                            className="mx-auto text-slate-600"
                         />
-                        <p className="mt-3 text-sm font-semibold text-slate-600">
+                        <p className="mt-3 text-sm font-semibold text-slate-300">
                             No users found.
                         </p>
-                        <p className="mt-1 text-xs text-slate-400">
+                        <p className="mt-1 text-xs text-slate-500">
                             Try adjusting your filter or search query.
                         </p>
                     </div>

@@ -1,31 +1,28 @@
 import { Link } from "react-router";
+import { ArrowLeft } from "lucide-react";
 
 const NotFound = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
-      <div className="text-center">
-        {/* 404 */}
-        <h1 className="text-[120px] md:text-[180px] font-extrabold leading-none bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white px-4">
+      <div className="text-center max-w-md animate-fade-in">
+        <h1 className="text-8xl sm:text-9xl font-black tracking-tight text-white">
           404
         </h1>
 
-        {/* Content */}
-        <h2 className="mt-4 text-3xl md:text-4xl font-bold text-gray-800">
+        <h2 className="mt-4 text-2xl font-bold text-white">
           Page Not Found
         </h2>
 
-        <p className="mt-3 max-w-md mx-auto text-gray-500 text-base md:text-lg">
-          Sorry, the page you are looking for doesn't exist or may have been
-          moved.
+        <p className="mt-2 text-sm text-slate-400 leading-relaxed">
+          The page you requested could not be located or may have been relocated.
         </p>
 
-        {/* Button */}
         <Link
           to="/"
-          className="inline-flex items-center gap-2 mt-8 px-6 py-3 rounded-lg bg-indigo-600 text-white font-semibold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:shadow-xl transition-all duration-300"
+          className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-semibold shadow-xs hover:bg-indigo-500 transition"
         >
-          <span>←</span>
-          Back to Home
+          <ArrowLeft size={14} />
+          Back to CampusRate Home
         </Link>
       </div>
     </div>

@@ -5,7 +5,6 @@ import {
     MessageSquare,
     GraduationCap,
     ArrowUpRight,
-    UserPlus,
     ShieldCheck,
     Activity,
     ChevronRight,
@@ -64,42 +63,30 @@ const Dashboard = () => {
         {
             title: "Total Seniors",
             value: String(counts.seniors),
-            change: "Live",
-            description: "Senior profiles",
+            change: "Active Roster",
+            description: "Registered mentors",
             icon: Users,
-            gradient: "from-indigo-500 to-purple-600",
-            bg: "bg-indigo-50",
-            text: "text-indigo-600",
         },
         {
             title: "Total Users",
             value: String(counts.users),
-            change: counts.pendingUsers > 0 ? `${counts.pendingUsers} Pending` : "All Active",
-            description: "Registered students",
+            change: counts.pendingUsers > 0 ? `${counts.pendingUsers} Pending` : "All Verified",
+            description: "Student accounts",
             icon: GraduationCap,
-            gradient: "from-blue-500 to-cyan-500",
-            bg: "bg-blue-50",
-            text: "text-blue-600",
         },
         {
             title: "Total Reviews",
             value: String(counts.reviews),
-            change: "Real-time",
+            change: "Live Feed",
             description: "Submitted reviews",
             icon: MessageSquare,
-            gradient: "from-pink-500 to-rose-500",
-            bg: "bg-pink-50",
-            text: "text-pink-600",
         },
         {
             title: "Average Rating",
             value: counts.avgRating,
-            change: "Platform",
+            change: "Overall Score",
             description: "Campus satisfaction",
             icon: Star,
-            gradient: "from-yellow-400 to-orange-500",
-            bg: "bg-yellow-50",
-            text: "text-yellow-600",
         },
     ];
 
@@ -108,157 +95,109 @@ const Dashboard = () => {
             title: "Manage Users & Permissions",
             description:
                 counts.pendingUsers > 0
-                    ? `${counts.pendingUsers} student(s) waiting for access permission`
-                    : "Review permissions and user roles",
+                    ? `${counts.pendingUsers} student account(s) waiting for approval`
+                    : "Verify student batches and manage access roles",
             icon: counts.pendingUsers > 0 ? Clock : Users,
             link: "/admin/users",
-            gradient: "from-indigo-500 to-purple-600",
             alertBadge: counts.pendingUsers > 0 ? `${counts.pendingUsers} Pending` : null,
         },
         {
             title: "Manage Reviews",
-            description: "Moderate and review anonymous student feedback",
+            description: "Moderate and inspect submitted student feedback",
             icon: MessageSquare,
             link: "/admin/reviews",
-            gradient: "from-pink-500 to-rose-500",
             alertBadge: null,
         },
         {
-            title: "View Seniors Directory",
-            description: "Browse all senior mentors and profile ratings",
-            icon: Users,
+            title: "Seniors Directory",
+            description: "Review active senior mentors and batch profiles",
+            icon: GraduationCap,
             link: "/seniors",
-            gradient: "from-emerald-500 to-teal-500",
             alertBadge: null,
         },
     ];
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6 text-white animate-fade-in">
+            {/* Header Solid Premium Banner */}
+            <div className="rounded-2xl bg-slate-900 p-6 sm:p-8 text-white border border-slate-800 shadow-xl flex flex-col justify-between gap-6 md:flex-row md:items-center">
+                <div>
+                    <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-md bg-slate-800 border border-slate-700 px-2.5 py-1 text-xs font-semibold text-slate-300">
+                        <Activity size={13} className="text-emerald-400" />
+                        System Administration
+                    </div>
 
-            {/* ================= HEADER ================= */}
-            <div className="relative overflow-hidden rounded-[30px] bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-7 text-white shadow-xl shadow-indigo-200/50 sm:p-9">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                        CampusRate Admin Dashboard
+                    </h1>
 
-                {/* Background Decorations */}
-                <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-                <div className="absolute -bottom-28 left-20 h-64 w-64 rounded-full bg-pink-300/20 blur-3xl" />
+                    <p className="mt-1.5 max-w-xl text-xs sm:text-sm text-slate-400 leading-relaxed">
+                        Centrally oversee student batch authorizations, review submissions, and senior mentorship ratings.
+                    </p>
+                </div>
 
-                <div className="relative flex flex-col justify-between gap-6 md:flex-row md:items-center">
-
+                <div className="hidden items-center gap-3 rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 md:flex">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white">
+                        <ShieldCheck size={20} />
+                    </div>
                     <div>
-                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold backdrop-blur-md">
-                            <Activity size={14} />
-                            Admin Dashboard
-                        </div>
-
-                        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-                            Welcome back 👋
-                        </h1>
-
-                        <p className="mt-3 max-w-xl text-sm leading-6 text-indigo-100">
-                            Manage your CampusRate platform, seniors,
-                            users and reviews from one place.
-                        </p>
+                        <p className="text-[11px] text-slate-400 font-medium">Authorization</p>
+                        <p className="text-xs font-bold text-white">Administrator Access</p>
                     </div>
-
-                    {/* Admin Badge */}
-                    <div className="hidden items-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-5 py-4 backdrop-blur-md md:flex">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
-                            <ShieldCheck size={23} />
-                        </div>
-
-                        <div>
-                            <p className="text-xs text-indigo-100">
-                                Account Type
-                            </p>
-
-                            <p className="font-bold">
-                                Administrator
-                            </p>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
-            {/* ================= STATS ================= */}
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-
+            {/* Stats Cards */}
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {stats.map((stat) => {
                     const Icon = stat.icon;
 
                     return (
                         <div
                             key={stat.title}
-                            className="group relative overflow-hidden rounded-[26px] border border-slate-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
+                            className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl transition-all duration-300 hover:border-slate-700 hover:-translate-y-1"
                         >
-
-                            {/* Top Gradient */}
-                            <div
-                                className={`absolute left-0 right-0 top-0 h-1 bg-gradient-to-r ${stat.gradient}`}
-                            />
-
                             <div className="flex items-start justify-between">
-
                                 <div>
-                                    <p className="text-sm font-medium text-slate-500">
+                                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                         {stat.title}
                                     </p>
-
-                                    <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">
+                                    <h2 className="mt-1.5 text-3xl font-black text-white tracking-tight">
                                         {stat.value}
                                     </h2>
-
-                                    <p className="mt-1 text-xs text-slate-400">
+                                    <p className="mt-0.5 text-xs text-slate-500">
                                         {stat.description}
                                     </p>
                                 </div>
 
-                                <div
-                                    className={`flex h-13 w-13 items-center justify-center rounded-2xl ${stat.bg} ${stat.text} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}
-                                >
-                                    <Icon size={24} />
+                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800 text-slate-300">
+                                    <Icon size={20} />
                                 </div>
-
                             </div>
 
-                            <div className="mt-5 flex items-center gap-2">
-
-                                <span className="rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-600">
+                            <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+                                <span className="font-semibold text-slate-300 bg-slate-950 border border-slate-800 px-2 py-0.5 rounded-md">
                                     {stat.change}
                                 </span>
-
-                                <span className="text-xs text-slate-400">
-                                    from last month
-                                </span>
-
+                                <span className="text-slate-500 text-[11px]">System Status</span>
                             </div>
-
                         </div>
                     );
                 })}
-
             </div>
 
-            {/* ================= QUICK ACTIONS ================= */}
+            {/* Quick Actions */}
             <div>
-
-                <div className="mb-5">
-                    <p className="text-xs font-bold uppercase tracking-wider text-indigo-600">
-                        Quick Actions
-                    </p>
-
-                    <h2 className="mt-1 text-2xl font-extrabold text-slate-900">
-                        Manage Platform
+                <div className="mb-4">
+                    <h2 className="text-base font-bold text-white tracking-tight">
+                        Administrative Controls
                     </h2>
-
-                    <p className="mt-1 text-sm text-slate-500">
-                        Quickly access your most important admin tools.
+                    <p className="text-xs text-slate-400">
+                        Quick access to frequently performed governance tasks.
                     </p>
                 </div>
 
-                <div className="grid gap-5 md:grid-cols-3">
-
+                <div className="grid gap-4 md:grid-cols-3">
                     {quickActions.map((action) => {
                         const Icon = action.icon;
 
@@ -266,159 +205,98 @@ const Dashboard = () => {
                             <Link
                                 key={action.title}
                                 to={action.link}
-                                className="group relative overflow-hidden rounded-[26px] border border-slate-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                                className="group rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl transition-all duration-300 hover:border-indigo-500/60 hover:-translate-y-1 flex flex-col justify-between"
                             >
+                                <div>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-white shadow-xs group-hover:bg-indigo-600 transition-colors">
+                                            <Icon size={18} />
+                                        </div>
 
-                                <div
-                                    className={`mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${action.gradient} text-white shadow-lg`}
-                                >
-                                    <Icon size={22} />
-                                </div>
+                                        {action.alertBadge && (
+                                            <span className="rounded-md bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-xs font-bold text-amber-400 animate-pulse">
+                                                {action.alertBadge}
+                                            </span>
+                                        )}
+                                    </div>
 
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-bold text-slate-900">
+                                    <h3 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors">
                                         {action.title}
                                     </h3>
-                                    {action.alertBadge && (
-                                        <span className="rounded-full bg-amber-100 border border-amber-200 px-2.5 py-0.5 text-[11px] font-bold text-amber-700 animate-pulse">
-                                            {action.alertBadge}
-                                        </span>
-                                    )}
+
+                                    <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+                                        {action.description}
+                                    </p>
                                 </div>
 
-                                <p className="mt-2 text-sm leading-6 text-slate-500">
-                                    {action.description}
-                                </p>
-
-                                <div className="mt-5 flex items-center gap-1 text-sm font-bold text-indigo-600">
-                                    Open
-                                    <ChevronRight
-                                        size={16}
-                                        className="transition-transform group-hover:translate-x-1"
-                                    />
+                                <div className="mt-5 pt-3 border-t border-slate-800 flex items-center gap-1 text-xs font-bold text-indigo-400">
+                                    Manage
+                                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                 </div>
-
-                                {/* Decoration */}
-                                <div className="absolute -bottom-10 -right-10 h-28 w-28 rounded-full bg-slate-50 transition-transform duration-500 group-hover:scale-150" />
-
                             </Link>
                         );
                     })}
-
                 </div>
             </div>
 
-            {/* ================= BOTTOM SECTION ================= */}
-            <div className="grid gap-6 lg:grid-cols-3">
-
-                {/* Overview */}
-                <div className="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm lg:col-span-2">
-
-                    <div className="flex items-center justify-between">
-
+            {/* Bottom Row */}
+            <div className="grid gap-5 lg:grid-cols-3">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-xl lg:col-span-2">
+                    <div className="flex items-center justify-between mb-4">
                         <div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-purple-600">
-                                Platform Overview
-                            </p>
-
-                            <h2 className="mt-1 text-xl font-extrabold text-slate-900">
-                                CampusRate Activity
+                            <h2 className="text-sm font-bold text-white">
+                                Activity Overview
                             </h2>
-                        </div>
-
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
-                            <Activity size={19} />
-                        </div>
-
-                    </div>
-
-                    {/* Empty State */}
-                    <div className="mt-6 rounded-2xl bg-slate-50 p-6 text-center">
-
-                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
-                            <MessageSquare size={24} />
-                        </div>
-
-                        <h3 className="mt-4 font-bold text-slate-800">
-                            No recent activity
-                        </h3>
-
-                        <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-slate-400">
-                            When users start rating seniors and submitting
-                            reviews, recent activity will appear here.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                {/* System Status */}
-                <div className="rounded-[28px] bg-slate-900 p-6 text-white shadow-xl">
-
-                    <div className="flex items-center gap-3">
-
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-400">
-                            <ShieldCheck size={22} />
-                        </div>
-
-                        <div>
                             <p className="text-xs text-slate-400">
-                                System Status
+                                Real-time rating events and user registrations.
                             </p>
-
-                            <h3 className="font-bold">
-                                All Systems Active
-                            </h3>
                         </div>
-
+                        <Activity size={18} className="text-slate-500" />
                     </div>
 
-                    <div className="mt-7 space-y-4">
-
-                        <div className="flex items-center justify-between rounded-2xl bg-white/5 p-4">
-                            <span className="text-sm text-slate-300">
-                                Authentication
-                            </span>
-
-                            <span className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-                                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                                Active
-                            </span>
-                        </div>
-
-                        <div className="flex items-center justify-between rounded-2xl bg-white/5 p-4">
-                            <span className="text-sm text-slate-300">
-                                Database
-                            </span>
-
-                            <span className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-                                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                                Connected
-                            </span>
-                        </div>
-
-                        <div className="flex items-center justify-between rounded-2xl bg-white/5 p-4">
-                            <span className="text-sm text-slate-300">
-                                API Server
-                            </span>
-
-                            <span className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-                                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                                Online
-                            </span>
-                        </div>
-
+                    <div className="rounded-xl bg-slate-950 border border-slate-800 p-6 text-center">
+                        <MessageSquare size={22} className="mx-auto text-slate-500" />
+                        <h3 className="mt-2 text-xs font-bold text-slate-300">
+                            Activity Stream Monitoring Active
+                        </h3>
+                        <p className="mt-0.5 text-[11px] text-slate-500">
+                            All student rating submissions are being processed and securely decoupled.
+                        </p>
                     </div>
-
-                    <div className="mt-6 flex items-center gap-2 text-xs text-slate-500">
-                        <ArrowUpRight size={14} />
-                        CampusRate Admin Panel
-                    </div>
-
                 </div>
 
-            </div>
+                {/* System Status Solid */}
+                <div className="rounded-2xl bg-slate-900 p-6 text-white border border-slate-800 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div className="flex items-center gap-2 mb-4">
+                            <ShieldCheck size={18} className="text-emerald-400" />
+                            <h3 className="text-sm font-bold text-white">System Infrastructure</h3>
+                        </div>
 
+                        <div className="space-y-2 text-xs">
+                            <div className="flex items-center justify-between rounded-lg bg-slate-950 px-3 py-2 border border-slate-800">
+                                <span className="text-slate-400">Authentication</span>
+                                <span className="font-semibold text-emerald-400">● Operational</span>
+                            </div>
+
+                            <div className="flex items-center justify-between rounded-lg bg-slate-950 px-3 py-2 border border-slate-800">
+                                <span className="text-slate-400">MongoDB Cluster</span>
+                                <span className="font-semibold text-emerald-400">● Connected</span>
+                            </div>
+
+                            <div className="flex items-center justify-between rounded-lg bg-slate-950 px-3 py-2 border border-slate-800">
+                                <span className="text-slate-400">API Endpoint</span>
+                                <span className="font-semibold text-emerald-400">● Healthy</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 pt-3 border-t border-slate-800 text-[11px] text-slate-500 flex items-center gap-1">
+                        <ArrowUpRight size={13} />
+                        CampusRate Operational Core
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

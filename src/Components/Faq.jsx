@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  Plus,
-  Minus,
-  HelpCircle,
-  Sparkles,
-} from "lucide-react";
+import { Plus, Minus, HelpCircle } from "lucide-react";
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(0);
@@ -13,126 +8,97 @@ const FAQ = () => {
     {
       question: "Who can rate a senior?",
       answer:
-        "Only eligible juniors can rate seniors. A student can rate students from a lower batch number than their own. For example, a 5th batch student can rate 4th, 3rd, 2nd, or 1st batch seniors.",
+        "Only eligible junior students who are logged in can submit ratings. A student can only rate students belonging to a batch strictly senior to them (e.g. 3rd batch can rate 1st or 2nd batch, but never juniors or batchmates).",
+    },
+    {
+      question: "Can I rate without signing in?",
+      answer:
+        "No. You must be signed in with your student account so our system can check batch eligibility and prevent duplicate ratings. Your review is still submitted 100% anonymously.",
     },
     {
       question: "Can I rate someone from my own batch?",
       answer:
-        "No. Batchmates cannot rate each other. CampusRate is designed specifically for junior-to-senior feedback.",
+        "No. To maintain fairness and avoid peer bias, ratings are strictly restricted to seniors who entered the campus in prior batches.",
     },
     {
       question: "Will the senior know who rated them?",
       answer:
-        "No. Reviewer identity is kept anonymous. Seniors can see the feedback and rating, but the review will not publicly reveal who submitted it.",
+        "No. Reviewer accounts are completely decoupled from review cards. Seniors can read reviews and star breakdowns, but author identities are completely withheld.",
     },
     {
-      question: "Can seniors rate juniors?",
+      question: "What evaluation criteria are included?",
       answer:
-        "No. The platform only allows juniors to provide ratings for eligible seniors.",
+        "Ratings cover core mentorship areas: technical guidance, communication clarity, behavior, approachability, and overall contribution to junior development.",
     },
     {
-      question: "What categories can I rate?",
+      question: "Why does my account need admin approval?",
       answer:
-        "You can rate areas such as helpfulness, communication, behavior, academic guidance, leadership, and overall experience.",
-    },
-    {
-      question: "Can I edit my rating later?",
-      answer:
-        "The platform can be configured to allow rating updates while maintaining the same eligibility and privacy rules.",
+        "To prevent fake profiles and spam ratings, an administrator verifies student batch credentials before granting full rating and directory access.",
     },
   ];
 
   return (
-    <section className="bg-white py-24">
-
-      <div className="mx-auto max-w-4xl px-6">
-
+    <section className="bg-slate-950 text-white py-24 border-t border-slate-900">
+      <div className="mx-auto max-w-3xl px-6">
         {/* Header */}
-        <div className="mb-14 text-center">
-
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-5 py-2 text-sm font-semibold text-indigo-600">
-            <HelpCircle size={17} />
-            Frequently Asked Questions
-            <Sparkles size={15} />
+        <div className="mb-14 text-center animate-fade-in">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-slate-900 border border-slate-800 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <HelpCircle size={14} className="text-indigo-400" />
+            Clear Answers
           </div>
 
-          <h2 className="text-4xl font-extrabold text-slate-900 md:text-5xl">
-            Got Questions?
-            <br />
-            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              We've Got Answers.
-            </span>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            Frequently Asked <span className="text-indigo-400">Questions</span>
           </h2>
 
-          <p className="mt-5 text-lg text-slate-500">
-            Everything you need to know about CampusRate.
+          <p className="mt-4 text-sm sm:text-base text-slate-400">
+            Everything you need to know about batch rules, rating confidentiality, and system permissions.
           </p>
-
         </div>
 
-        {/* FAQ */}
-        <div className="space-y-4">
-
+        {/* FAQ List */}
+        <div className="space-y-3">
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
 
             return (
               <div
                 key={index}
-                className={`overflow-hidden rounded-2xl border transition-all duration-300 ${
+                className={`overflow-hidden rounded-xl border transition-all duration-200 ${
                   isOpen
-                    ? "border-indigo-200 bg-indigo-50/50 shadow-md"
-                    : "border-slate-200 bg-white"
+                    ? "border-slate-700 bg-slate-900 shadow-xl"
+                    : "border-slate-800/80 bg-slate-900/60 hover:border-slate-700"
                 }`}
               >
-
                 <button
-                  onClick={() =>
-                    setOpenIndex(isOpen ? -1 : index)
-                  }
-                  className="flex w-full items-center justify-between gap-5 p-6 text-left"
+                  type="button"
+                  onClick={() => setOpenIndex(isOpen ? -1 : index)}
+                  className="flex w-full items-center justify-between gap-4 p-5 text-left cursor-pointer"
                 >
-
-                  <span className="text-base font-bold text-slate-800 md:text-lg">
+                  <span className="text-sm sm:text-base font-bold text-white">
                     {faq.question}
                   </span>
 
                   <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all ${
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${
                       isOpen
                         ? "bg-indigo-600 text-white"
-                        : "bg-slate-100 text-slate-600"
+                        : "bg-slate-800 text-slate-400"
                     }`}
                   >
-                    {isOpen ? (
-                      <Minus size={18} />
-                    ) : (
-                      <Plus size={18} />
-                    )}
+                    {isOpen ? <Minus size={15} /> : <Plus size={15} />}
                   </div>
-
                 </button>
 
-                <div
-                  className={`grid transition-all duration-300 ${
-                    isOpen
-                      ? "grid-rows-[1fr]"
-                      : "grid-rows-[0fr]"
-                  }`}
-                >
-                  <div className="overflow-hidden">
-                    <p className="px-6 pb-6 leading-7 text-slate-500">
-                      {faq.answer}
-                    </p>
+                {isOpen && (
+                  <div className="px-5 pb-5 pt-1 text-xs sm:text-sm leading-relaxed text-slate-300 border-t border-slate-800">
+                    {faq.answer}
                   </div>
-                </div>
-
+                )}
               </div>
             );
           })}
-
         </div>
-
       </div>
     </section>
   );

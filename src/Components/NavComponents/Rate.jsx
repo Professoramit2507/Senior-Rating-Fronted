@@ -7,12 +7,13 @@ import {
     Sparkles,
     MessageSquare,
     Send,
-    UserRound,
     Lock,
-    ShieldAlert,
+    ShieldCheck,
+    LogIn,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import useAuth from "../Hooks/useAuth";
+import { getSeniorPhoto } from "../../utils/studentPhotos";
 
 const API_URL = "http://localhost:3000";
 
@@ -50,45 +51,41 @@ const RateSenior = () => {
     const categories = [
         {
             id: "behavior",
-            title: "ব্যবহার",
-            subtitle: "আপনার সাথে কেমন আচরণ করে?",
+            title: "Behavior & Attitude",
+            subtitle: "Professionalism and conduct with juniors",
             emoji: "😊",
         },
         {
             id: "movement",
-            title: "চলা-ফেরা",
-            subtitle: "আচার-আচরণ ও personality কেমন?",
+            title: "Leadership Presence",
+            subtitle: "Campus presence and mentorship drive",
             emoji: "✨",
         },
         {
             id: "friendly",
-            title: "মিশুকি",
-            subtitle: "অন্যদের সাথে কতটা সহজে মিশে?",
+            title: "Approachability",
+            subtitle: "Ease of interaction and friendliness",
             emoji: "🤝",
         },
         {
             id: "helpful",
-            title: "সহযোগিতা",
-            subtitle: "প্রয়োজনে কতটা পাশে থাকে?",
+            title: "Helpfulness",
+            subtitle: "Assistance during projects, exams and labs",
             emoji: "💙",
         },
         {
             id: "respect",
-            title: "সম্মানবোধ",
-            subtitle: "সবার প্রতি কেমন respect দেখায়?",
+            title: "Mutual Respect",
+            subtitle: "Respect toward peers and junior batches",
             emoji: "❤️",
         },
         {
             id: "communication",
-            title: "কথাবার্তা",
-            subtitle: "কথা বলার ধরন কেমন?",
+            title: "Communication",
+            subtitle: "Clarity and transparency of advice",
             emoji: "💬",
         },
     ];
-
-    // =========================
-    // GET SENIOR
-    // =========================
 
     useEffect(() => {
         const fetchSenior = async () => {
@@ -97,25 +94,23 @@ const RateSenior = () => {
                 setError("");
 
                 const response = await fetch(`${API_URL}/senior`);
-
                 if (!response.ok) {
                     throw new Error("Failed to fetch seniors");
                 }
 
                 const data = await response.json();
-
                 const foundSenior = data.find(
                     (item) => String(item._id) === String(id)
                 );
 
                 if (!foundSenior) {
-                    throw new Error("Senior not found");
+                    throw new Error("Senior profile not found");
                 }
 
                 setSenior(foundSenior);
-            } catch (error) {
-                console.error("Error:", error);
-                setError("Senior information পাওয়া যায়নি");
+            } catch (err) {
+                console.error("Error:", err);
+                setError("Senior information could not be retrieved");
             } finally {
                 setLoading(false);
             }
@@ -126,10 +121,6 @@ const RateSenior = () => {
         }
     }, [id]);
 
-    // =========================
-    // HANDLE RATING
-    // =========================
-
     const handleRating = (category, rating) => {
         setRatings((prev) => ({
             ...prev,
@@ -138,7 +129,6 @@ const RateSenior = () => {
     };
 
     const ratedCount = Object.keys(ratings).length;
-
     const average =
         ratedCount > 0
             ? (
@@ -149,25 +139,41 @@ const RateSenior = () => {
             ).toFixed(1)
             : "0.0";
 
-    // =========================
-    // SUBMIT RATING
-    // =========================
-
     const handleSubmitRating = async () => {
+        // STRICT REQUIREMENT 1: User MUST be logged in
+        if (!user) {
+            Swal.fire({
+                icon: "warning",
+                title: "Login Required! 🔒",
+                text: "You must be signed in with your student account to submit a rating.",
+                confirmButtonColor: "#4f46e5",
+                confirmButtonText: "Go to Login",
+                showCancelButton: true,
+                cancelButtonColor: "#334155",
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    navigate("/login");
+                }
+            });
+            return;
+        }
+
         if (isJuniorOrClassmate) {
             Swal.fire({
                 icon: "error",
                 title: "Cannot Rate Junior or Classmate! 🚫",
                 text: `You belong to ${dbUser.batch}. You can only rate seniors who started before your batch.`,
+                confirmButtonColor: "#0f172a",
             });
             return;
         }
 
-        if (user && dbUser && dbUser.status === "pending") {
+        if (dbUser && dbUser.status === "pending") {
             Swal.fire({
                 icon: "warning",
                 title: "Permission Pending",
-                text: "Your account is awaiting admin approval. You will receive full access once an administrator approves your account in Manage Users.",
+                text: "Your account is awaiting admin approval in Manage Users.",
+                confirmButtonColor: "#0f172a",
             });
             return;
         }
@@ -177,6 +183,7 @@ const RateSenior = () => {
                 icon: "warning",
                 title: "Incomplete Rating",
                 text: `Please rate all ${categories.length} categories before submitting.`,
+                confirmButtonColor: "#4f46e5",
             });
             return;
         }
@@ -222,7 +229,6 @@ const RateSenior = () => {
                 _id: data.insertedId || Date.now().toString(),
             };
 
-            // Save to local storage for instant offline/guest support
             try {
                 const localReviews = JSON.parse(
                     localStorage.getItem("my_ratings") || "[]"
@@ -238,7 +244,7 @@ const RateSenior = () => {
             await Swal.fire({
                 icon: "success",
                 title: "Rating Submitted!",
-                text: "Your anonymous rating has been submitted successfully.",
+                text: "Your anonymous rating has been recorded successfully.",
                 timer: 1800,
                 showConfirmButton: false,
             });
@@ -250,23 +256,19 @@ const RateSenior = () => {
                 icon: "error",
                 title: "Submission Failed",
                 text: submitErr.message || "Failed to submit rating. Please try again.",
+                confirmButtonColor: "#4f46e5",
             });
         } finally {
             setSubmitting(false);
         }
     };
 
-    // =========================
-    // LOADING
-    // =========================
-
     if (loading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-slate-50">
-                <div className="text-center">
-                    <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-indigo-100 border-t-indigo-600" />
-
-                    <p className="mt-4 text-sm font-medium text-slate-500">
+            <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+                <div className="text-center animate-fade-in">
+                    <div className="mx-auto h-10 w-10 animate-spin rounded-full border-3 border-slate-700 border-t-indigo-500" />
+                    <p className="mt-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                         Loading senior profile...
                     </p>
                 </div>
@@ -274,31 +276,21 @@ const RateSenior = () => {
         );
     }
 
-    // =========================
-    // ERROR
-    // =========================
-
     if (error || !senior) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-slate-50 px-5">
-                <div className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-xl">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-3xl">
-                        😕
-                    </div>
-
-                    <h2 className="mt-5 text-xl font-bold text-slate-900">
+            <div className="flex min-h-screen items-center justify-center bg-slate-950 px-5 text-white">
+                <div className="w-full max-w-md rounded-2xl bg-slate-900 p-8 text-center border border-slate-800 shadow-xl animate-fade-in">
+                    <h2 className="text-lg font-bold text-white">
                         Senior Not Found
                     </h2>
-
-                    <p className="mt-2 text-sm text-slate-500">
-                        এই senior-এর profile পাওয়া যায়নি।
+                    <p className="mt-2 text-xs text-slate-400">
+                        The requested senior record could not be loaded.
                     </p>
-
                     <Link
                         to="/seniors"
-                        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-indigo-500"
                     >
-                        <ArrowLeft size={17} />
+                        <ArrowLeft size={14} />
                         Back to Seniors
                     </Link>
                 </div>
@@ -306,566 +298,308 @@ const RateSenior = () => {
         );
     }
 
-    // =========================
-    // INITIALS
-    // =========================
-
-    const initials =
-        senior.name
-            ?.split(" ")
-            .map((word) => word[0])
-            .join("")
-            .slice(0, 2)
-            .toUpperCase() || "SR";
+    const photoUrl = getSeniorPhoto(senior);
 
     return (
-        <section className="min-h-screen bg-[#f5f7fb] px-4 py-6 sm:px-6 sm:py-10">
-            <div className="mx-auto max-w-7xl">
-
-                {/* =========================
-                    BACK BUTTON
-                ========================= */}
-
+        <section className="min-h-screen bg-slate-950 text-white px-4 py-8 sm:px-6 sm:py-10">
+            <div className="mx-auto max-w-7xl animate-fade-in">
+                {/* Back Button */}
                 <Link
                     to="/seniors"
-                    className="mb-6 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-500 shadow-sm transition hover:text-indigo-600 hover:shadow-md"
+                    className="mb-6 inline-flex items-center gap-2 rounded-xl bg-slate-900 border border-slate-800 px-4 py-2 text-xs font-semibold text-slate-300 shadow-xs transition hover:bg-slate-800 hover:text-white"
                 >
-                    <ArrowLeft size={17} />
-                    Back to Seniors
+                    <ArrowLeft size={15} />
+                    Back to Seniors Directory
                 </Link>
 
-                {/* =========================
-                    MAIN GRID
-                ========================= */}
-
+                {/* Main Grid */}
                 <div className="grid items-start gap-6 lg:grid-cols-[360px_1fr]">
-
-                    {/* ==================================================
-                        LEFT SIDE - SENIOR DETAILS
-                    ================================================== */}
-
+                    {/* LEFT SIDE - SENIOR DETAILS WITH PHOTO */}
                     <div className="lg:sticky lg:top-24">
+                        <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-xl">
+                            {/* Photo Banner */}
+                            <div className="relative h-64 w-full overflow-hidden bg-slate-950">
+                                <img
+                                    src={photoUrl}
+                                    alt={senior.name}
+                                    className="h-full w-full object-cover object-top transition-transform duration-500 hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-slate-950/20 pointer-events-none" />
 
-                        <div className="overflow-hidden rounded-[30px] border border-slate-100 bg-white shadow-xl shadow-slate-200/60">
+                                <div className="absolute top-3 left-3 rounded-md bg-slate-950/80 backdrop-blur-md border border-slate-800 px-2.5 py-1 text-[11px] font-semibold text-slate-200">
+                                    <GraduationCap size={13} className="inline mr-1 text-indigo-400" />
+                                    {senior.batch}
+                                </div>
 
-                            {/* Gradient Header */}
-                            <div className="relative h-36 overflow-hidden bg-linear-to-br from-indigo-600 via-purple-600 to-pink-500">
-
-                                <div className="absolute -right-10 -top-20 h-52 w-52 rounded-full bg-white/10 blur-3xl" />
-
-                                <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-pink-300/20 blur-3xl" />
-
-                                <div className="absolute left-6 top-5 flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 backdrop-blur-md">
-                                    <Sparkles
-                                        size={14}
-                                        className="text-yellow-300"
-                                    />
-
-                                    <span className="text-xs font-semibold text-white">
-                                        Senior Profile
-                                    </span>
+                                <div className="absolute top-3 right-3 flex items-center gap-1 rounded-md bg-slate-950/80 backdrop-blur-md border border-slate-800 px-2.5 py-1 text-xs font-bold text-amber-400">
+                                    <Star size={13} className="fill-amber-400" />
+                                    <span>{senior.rating || "0.0"}</span>
                                 </div>
                             </div>
 
-                            {/* Profile */}
-                            <div className="relative px-6 pb-6">
-
-                                {/* Avatar */}
-                                <div className="-mt-16 flex items-end justify-between">
-
-                                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-[30px] border-4 border-white bg-linear-to-br from-indigo-500 to-purple-600 text-3xl font-bold text-white shadow-xl">
-
-                                        {senior.image ? (
-                                            <img
-                                                src={senior.image}
-                                                alt={senior.name}
-                                                className="h-full w-full object-cover"
-                                            />
-                                        ) : (
-                                            initials
-                                        )}
-
-                                    </div>
-
-                                    {/* Rating */}
-                                    <div className="mb-2 flex items-center gap-1.5 rounded-2xl bg-yellow-50 px-3.5 py-2 text-yellow-600">
-
-                                        <Star
-                                            size={18}
-                                            fill="currentColor"
-                                        />
-
-                                        <span className="text-sm font-extrabold">
-                                            {senior.rating || "0.0"}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Name */}
-                                <div className="mt-5">
-
-                                    <div className="flex flex-wrap items-center gap-2">
-
-                                        <h1 className="text-2xl font-extrabold text-slate-900">
-                                            {senior.name}
-                                        </h1>
-
-                                        <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-[10px] font-extrabold tracking-wide text-indigo-600">
-                                            SENIOR
-                                        </span>
-
-                                    </div>
-
-                                    <p className="mt-1 text-sm text-slate-400">
-                                        CampusRate Member
+                            {/* Profile Info */}
+                            <div className="p-6 pt-3">
+                                <div>
+                                    <h1 className="text-xl font-bold text-white">
+                                        {senior.name}
+                                    </h1>
+                                    <p className="text-xs text-slate-400 mt-1">
+                                        {senior.department} • {senior.batch}
                                     </p>
                                 </div>
 
-                                {/* Info */}
-                                <div className="mt-6 space-y-3">
-
-                                    <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
-
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
-                                            <GraduationCap size={20} />
-                                        </div>
-
-                                        <div>
-                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                                Department
-                                            </p>
-
-                                            <p className="mt-0.5 text-sm font-bold text-slate-800">
-                                                {senior.department || "N/A"}
-                                            </p>
-                                        </div>
-
+                                {/* Quick Specs */}
+                                <div className="mt-5 space-y-2.5 border-t border-slate-800 pt-4">
+                                    <div className="flex items-center justify-between text-xs text-slate-400">
+                                        <span>Role</span>
+                                        <span className="font-semibold text-white">{senior.designation || "Senior Mentor"}</span>
                                     </div>
-
-                                    <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
-
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
-                                            <UserRound size={20} />
-                                        </div>
-
-                                        <div>
-                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                                Batch
-                                            </p>
-
-                                            <p className="mt-0.5 text-sm font-bold text-slate-800">
-                                                {senior.batch || "N/A"}
-                                            </p>
-                                        </div>
-
+                                    <div className="flex items-center justify-between text-xs text-slate-400">
+                                        <span>Department</span>
+                                        <span className="font-semibold text-white">{senior.department || "N/A"}</span>
                                     </div>
-
-                                    <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4">
-
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-100 text-pink-600">
-                                            <MessageSquare size={20} />
-                                        </div>
-
-                                        <div>
-                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                                                Reviews
-                                            </p>
-
-                                            <p className="mt-0.5 text-sm font-bold text-slate-800">
-                                                {senior.reviews || 0} Reviews
-                                            </p>
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                {/* Existing Rating */}
-                                <div className="mt-6 rounded-2xl bg-linear-to-br from-indigo-50 to-purple-50 p-5">
-
-                                    <div className="flex items-center justify-between">
-
-                                        <div>
-                                            <p className="text-xs font-semibold text-slate-400">
-                                                Current Rating
-                                            </p>
-
-                                            <div className="mt-1 flex items-center gap-2">
-
-                                                <Star
-                                                    size={19}
-                                                    fill="#facc15"
-                                                    className="text-yellow-400"
-                                                />
-
-                                                <span className="text-2xl font-extrabold text-slate-900">
-                                                    {senior.rating || "0.0"}
-                                                </span>
-
-                                                <span className="text-xs text-slate-400">
-                                                    / 5
-                                                </span>
-
-                                            </div>
-                                        </div>
-
-                                        <div className="text-right">
-                                            <p className="text-xs font-semibold text-slate-400">
-                                                Total
-                                            </p>
-
-                                            <p className="text-lg font-bold text-indigo-600">
-                                                {senior.reviews || 0}
-                                            </p>
-                                        </div>
-
+                                    <div className="flex items-center justify-between text-xs text-slate-400">
+                                        <span>Total Reviews</span>
+                                        <span className="font-semibold text-white">{senior.reviews || 0}</span>
                                     </div>
                                 </div>
 
-                                {/* Anonymous Info */}
-                                <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-
-                                    <p className="text-sm font-bold text-indigo-700">
-                                        🔒 Anonymous Rating
+                                {/* Confidential Guarantee */}
+                                <div className="mt-5 rounded-xl border border-slate-800 bg-slate-950 p-3.5">
+                                    <div className="flex items-center gap-2 text-xs font-bold text-white">
+                                        <ShieldCheck size={16} className="text-emerald-400" />
+                                        100% Anonymous Delivery
+                                    </div>
+                                    <p className="mt-1 text-[11px] text-slate-400 leading-relaxed">
+                                        Your student identity is never exposed or linked to your ratings.
                                     </p>
-
-                                    <p className="mt-1 text-xs leading-5 text-indigo-500">
-                                        আপনার identity অন্যদের কাছে প্রকাশ
-                                        করা হবে না।
-                                    </p>
-
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* ==================================================
-                        RIGHT SIDE - RATING
-                    ================================================== */}
-
+                    {/* RIGHT SIDE - RATING WORKFLOW OR LOGIN GATE */}
                     <div>
-                        {isJuniorOrClassmate ? (
-                            <div className="rounded-[30px] border border-amber-200 bg-white p-8 sm:p-10 text-center shadow-md">
-                                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
-                                    <Lock size={32} />
+                        {/* ================= CONDITION 1: NOT LOGGED IN ================= */}
+                        {!user ? (
+                            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 sm:p-10 text-center shadow-xl animate-slide-up">
+                                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-800 text-indigo-400 border border-slate-700">
+                                    <Lock size={30} />
                                 </div>
 
-                                <h2 className="mt-5 text-2xl font-extrabold text-slate-900">
-                                    Cannot Rate Junior or Classmate! 🚫
+                                <h2 className="mt-4 text-2xl font-bold text-white">
+                                    Sign In Required to Rate
                                 </h2>
 
-                                <p className="mx-auto mt-3 max-w-md text-sm text-slate-600 leading-6">
-                                    You are registered as a <strong>{dbUser?.batch}</strong> student.
-                                    <strong> {senior.name}</strong> is in <strong>{senior.batch}</strong>, which makes them your{" "}
-                                    <span className="font-bold text-amber-600">
-                                        {seniorBatchNum === userBatchNum ? "classmate" : "junior"}
-                                    </span>.
-                                    On CampusRate, you can only rate seniors who belong to batches before yours.
+                                <p className="mx-auto mt-2 max-w-md text-xs sm:text-sm text-slate-400 leading-relaxed">
+                                    To maintain the integrity of peer evaluations and verify batch eligibility, you must sign in with your student account before submitting ratings.
                                 </p>
 
-                                <div className="mt-7">
+                                <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                                    <Link
+                                        to="/login"
+                                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-xs transition hover:bg-indigo-500 hover:scale-[1.02]"
+                                    >
+                                        <LogIn size={16} />
+                                        Sign In to Rate
+                                    </Link>
+
+                                    <Link
+                                        to="/register"
+                                        className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-6 py-3 text-xs sm:text-sm font-semibold text-slate-300 transition hover:bg-slate-700"
+                                    >
+                                        Create New Account
+                                    </Link>
+                                </div>
+                            </div>
+                        ) : isJuniorOrClassmate ? (
+                            /* ================= CONDITION 2: JUNIOR / CLASSMATE RESTRICTION ================= */
+                            <div className="rounded-2xl border border-amber-900/50 bg-slate-900 p-8 text-center shadow-xl animate-slide-up">
+                                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                    <Lock size={26} />
+                                </div>
+
+                                <h2 className="mt-4 text-xl font-bold text-white">
+                                    Rating Restricted
+                                </h2>
+
+                                <p className="mx-auto mt-2 max-w-md text-xs sm:text-sm text-slate-400 leading-relaxed">
+                                    You are registered as a <strong>{dbUser?.batch}</strong> student.
+                                    <strong> {senior.name}</strong> is in <strong>{senior.batch}</strong>, which makes them your{" "}
+                                    <span className="font-bold text-amber-400">
+                                        {seniorBatchNum === userBatchNum ? "classmate" : "junior"}
+                                    </span>.
+                                    CampusRate guidelines strictly reserve ratings for seniors belonging to preceding batches.
+                                </p>
+
+                                <div className="mt-6">
                                     <Link
                                         to="/seniors"
-                                        className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:scale-105"
+                                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition hover:bg-indigo-500"
                                     >
-                                        <ArrowLeft size={16} />
-                                        Back to Seniors Directory
+                                        <ArrowLeft size={14} />
+                                        Return to Senior Directory
                                     </Link>
                                 </div>
                             </div>
                         ) : (
-                            <>
+                            /* ================= CONDITION 3: RATING FORM ================= */
+                            <div className="animate-slide-up">
                                 {/* Rating Header */}
-                                <div className="rounded-[30px] bg-slate-900 p-6 text-white shadow-xl sm:p-7">
+                                <div className="rounded-2xl bg-slate-900 p-6 text-white shadow-xl border border-slate-800">
+                                    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                                        <div>
+                                            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                                Peer Evaluation
+                                            </p>
+                                            <h2 className="mt-1 text-2xl font-extrabold text-white">
+                                                Rate {senior.name?.split(" ")[0]}
+                                            </h2>
+                                            <p className="mt-0.5 text-xs text-slate-400">
+                                                Select stars for each mentorship category below.
+                                            </p>
+                                        </div>
 
-                            <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+                                        <div className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-center">
+                                            <div className="flex items-center justify-center gap-1.5">
+                                                <Star size={18} className="fill-amber-400 text-amber-400" />
+                                                <span className="text-2xl font-black text-white">
+                                                    {average}
+                                                </span>
+                                                <span className="text-xs text-slate-400">/ 5.0</span>
+                                            </div>
+                                            <p className="mt-0.5 text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+                                                Your Score
+                                            </p>
+                                        </div>
+                                    </div>
 
-                                <div>
-
-                                    <div className="flex items-center gap-2">
-
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10">
-                                            <Sparkles
-                                                size={18}
-                                                className="text-yellow-400"
+                                    {/* Progress */}
+                                    <div className="mt-5 border-t border-slate-800 pt-4">
+                                        <div className="mb-1.5 flex items-center justify-between text-xs text-slate-400">
+                                            <span>Progress</span>
+                                            <span className="font-bold text-white">
+                                                {ratedCount} of {categories.length} Categories Rated
+                                            </span>
+                                        </div>
+                                        <div className="h-1.5 w-full rounded-full bg-slate-950 overflow-hidden">
+                                            <div
+                                                className="h-full bg-indigo-500 transition-all duration-300"
+                                                style={{
+                                                    width: `${(ratedCount / categories.length) * 100}%`,
+                                                }}
                                             />
                                         </div>
-
-                                        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                                            Your Review
-                                        </p>
-
                                     </div>
-
-                                    <h2 className="mt-3 text-2xl font-extrabold">
-                                        Rate {senior.name?.split(" ")[0]}
-                                    </h2>
-
-                                    <p className="mt-1 text-sm text-slate-400">
-                                        Give your honest experience
-                                    </p>
-
                                 </div>
 
-                                {/* Average */}
-                                <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-center backdrop-blur">
+                                {/* Category Cards */}
+                                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                                    {categories.map((category, index) => {
+                                        const rating = ratings[category.id] || 0;
 
-                                    <div className="flex items-center justify-center gap-1">
-
-                                        <Star
-                                            size={17}
-                                            fill="#facc15"
-                                            className="text-yellow-400"
-                                        />
-
-                                        <span className="text-2xl font-extrabold">
-                                            {average}
-                                        </span>
-
-                                    </div>
-
-                                    <p className="mt-1 text-[11px] font-medium text-slate-500">
-                                        Your Average
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                            {/* Progress */}
-                            <div className="mt-6">
-
-                                <div className="mb-2 flex items-center justify-between">
-
-                                    <span className="text-xs font-medium text-slate-400">
-                                        Rating Progress
-                                    </span>
-
-                                    <span className="text-xs font-bold text-white">
-                                        {ratedCount}/{categories.length}
-                                    </span>
-
-                                </div>
-
-                                <div className="h-2 overflow-hidden rounded-full bg-white/10">
-
-                                    <div
-                                        className="h-full rounded-full bg-linear-to-r from-indigo-400 via-purple-400 to-pink-400 transition-all duration-500"
-                                        style={{
-                                            width: `${(ratedCount /
-                                                    categories.length) *
-                                                100
-                                                }%`,
-                                        }}
-                                    />
-
-                                </div>
-
-                            </div>
-                        </div>
-
-                        {/* Category Title */}
-                        <div className="mb-4 mt-6 flex items-center justify-between">
-
-                            <div>
-                                <h2 className="text-lg font-extrabold text-slate-900">
-                                    Rating Categories
-                                </h2>
-
-                                <p className="mt-1 text-xs text-slate-400">
-                                    প্রতিটি category-তে ১ থেকে ৫ star দিন
-                                </p>
-                            </div>
-
-                            <span className="rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-600">
-                                {ratedCount} Rated
-                            </span>
-
-                        </div>
-
-                        {/* Categories */}
-                        <div className="grid gap-4 md:grid-cols-2">
-
-                            {categories.map((category, index) => {
-                                const rating =
-                                    ratings[category.id] || 0;
-
-                                return (
-                                    <div
-                                        key={category.id}
-                                        className={`group rounded-[26px] border bg-white p-5 transition-all duration-300 ${rating
-                                                ? "border-indigo-200 shadow-lg shadow-indigo-100/50"
-                                                : "border-slate-100 shadow-sm hover:-translate-y-1 hover:shadow-lg"
-                                            }`}
-                                    >
-
-                                        {/* Category Top */}
-                                        <div className="flex items-center gap-3">
-
+                                        return (
                                             <div
-                                                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl transition ${rating
-                                                        ? "bg-indigo-50"
-                                                        : "bg-slate-50 group-hover:bg-indigo-50"
-                                                    }`}
+                                                key={category.id}
+                                                className={`rounded-xl border p-4 transition-all duration-200 ${
+                                                    rating
+                                                        ? "border-indigo-500/70 bg-slate-900 shadow-xs"
+                                                        : "border-slate-800 bg-slate-900/90 hover:border-slate-700"
+                                                }`}
                                             >
-                                                {category.emoji}
-                                            </div>
-
-                                            <div className="flex-1">
-
-                                                <div className="flex items-center justify-between">
-
-                                                    <h3 className="font-extrabold text-slate-900">
-                                                        {category.title}
-                                                    </h3>
-
-                                                    <span className="text-[10px] font-extrabold text-slate-300">
+                                                <div className="flex items-start justify-between">
+                                                    <div>
+                                                        <h3 className="text-sm font-bold text-white">
+                                                            {category.title}
+                                                        </h3>
+                                                        <p className="mt-0.5 text-xs text-slate-400">
+                                                            {category.subtitle}
+                                                        </p>
+                                                    </div>
+                                                    <span className="text-[11px] font-bold text-slate-600">
                                                         0{index + 1}
                                                     </span>
-
                                                 </div>
 
-                                                <p className="mt-1 text-xs text-slate-400">
-                                                    {category.subtitle}
-                                                </p>
-
-                                            </div>
-                                        </div>
-
-                                        {/* Stars */}
-                                        <div className="mt-5 flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2.5">
-
-                                            <div className="flex">
-
-                                                {[1, 2, 3, 4, 5].map(
-                                                    (star) => (
-                                                        <button
-                                                            key={star}
-                                                            type="button"
-                                                            onClick={() =>
-                                                                handleRating(
-                                                                    category.id,
-                                                                    star
-                                                                )
-                                                            }
-                                                            aria-label={`${star} star`}
-                                                            className={`flex h-9 w-9 items-center justify-center text-2xl transition-all duration-200 hover:scale-125 ${star <= rating
-                                                                    ? "text-yellow-400"
-                                                                    : "text-slate-300 hover:text-yellow-300"
+                                                <div className="mt-4 flex items-center justify-between rounded-lg bg-slate-950 border border-slate-800 px-3 py-1.5">
+                                                    <div className="flex gap-1">
+                                                        {[1, 2, 3, 4, 5].map((star) => (
+                                                            <button
+                                                                key={star}
+                                                                type="button"
+                                                                onClick={() => handleRating(category.id, star)}
+                                                                className={`cursor-pointer text-xl transition hover:scale-125 ${
+                                                                    star <= rating
+                                                                        ? "text-amber-400"
+                                                                        : "text-slate-600 hover:text-amber-300"
                                                                 }`}
-                                                        >
-                                                            ★
-                                                        </button>
-                                                    )
-                                                )}
+                                                            >
+                                                                ★
+                                                            </button>
+                                                        ))}
+                                                    </div>
 
+                                                    <span className="text-xs font-bold text-slate-300">
+                                                        {rating ? `${rating}/5` : "Rate"}
+                                                    </span>
+                                                </div>
                                             </div>
-
-                                            <span
-                                                className={`text-xs font-bold ${rating
-                                                        ? "text-indigo-600"
-                                                        : "text-slate-400"
-                                                    }`}
-                                            >
-                                                {rating
-                                                    ? `${rating}/5`
-                                                    : "Rate"}
-                                            </span>
-
-                                        </div>
-                                    </div>
-                                );
-                            })}
-
-                        </div>
-
-                        {/* =========================
-                            REVIEW BOX
-                        ========================= */}
-
-                        <div className="mt-5 rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
-
-                            <div className="flex items-start justify-between gap-4">
-
-                                <div className="flex items-center gap-3">
-
-                                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-pink-50 text-pink-500">
-                                        <MessageSquare size={20} />
-                                    </div>
-
-                                    <div>
-                                        <h3 className="font-extrabold text-slate-900">
-                                            Write something
-                                        </h3>
-
-                                        <p className="mt-0.5 text-xs text-slate-400">
-                                            Share your honest experience
-                                        </p>
-                                    </div>
-
+                                        );
+                                    })}
                                 </div>
 
-                                <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-400">
-                                    {review.length}/300
-                                </span>
+                                {/* Review Comment Box */}
+                                <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xs">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <MessageSquare size={16} className="text-indigo-400" />
+                                            <h3 className="text-sm font-bold text-white">
+                                                Written Feedback (Optional)
+                                            </h3>
+                                        </div>
+                                        <span className="text-xs text-slate-500">
+                                            {review.length}/300
+                                        </span>
+                                    </div>
 
+                                    <textarea
+                                        value={review}
+                                        onChange={(e) => setReview(e.target.value.slice(0, 300))}
+                                        rows={4}
+                                        placeholder={`Share helpful insights about working with ${senior.name}...`}
+                                        className="mt-3 w-full resize-none rounded-xl border border-slate-800 bg-slate-950 p-3 text-xs sm:text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-indigo-500"
+                                    />
+                                </div>
+
+                                {/* Submit Button */}
+                                <button
+                                    type="button"
+                                    onClick={handleSubmitRating}
+                                    disabled={ratedCount !== categories.length || submitting}
+                                    className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-xs sm:text-sm font-bold transition shadow-xs ${
+                                        ratedCount === categories.length && !submitting
+                                            ? "bg-indigo-600 text-white hover:bg-indigo-500 cursor-pointer active:scale-[0.99]"
+                                            : "bg-slate-800 text-slate-500 cursor-not-allowed"
+                                    }`}
+                                >
+                                    {submitting ? (
+                                        <>
+                                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                                            Submitting Rating...
+                                        </>
+                                    ) : ratedCount === categories.length ? (
+                                        <>
+                                            <Send size={15} />
+                                            Submit Anonymous Rating
+                                        </>
+                                    ) : (
+                                        <>
+                                            {categories.length - ratedCount} categories remaining to rate
+                                        </>
+                                    )}
+                                </button>
                             </div>
-
-                            <textarea
-                                value={review}
-                                onChange={(e) =>
-                                    setReview(
-                                        e.target.value.slice(0, 300)
-                                    )
-                                }
-                                rows={5}
-                                placeholder={`How was your experience with ${senior.name}?`}
-                                className="mt-5 w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-6 text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-50"
-                            />
-
-                        </div>
-
-                        {/* =========================
-                            SUBMIT
-                        ========================= */}
-
-                        <button
-                            type="button"
-                            onClick={handleSubmitRating}
-                            disabled={ratedCount !== categories.length || submitting}
-                            className={`mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-extrabold transition-all duration-300 ${ratedCount === categories.length && !submitting
-                                    ? "bg-linear-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-xl shadow-indigo-200 hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
-                                    : "cursor-not-allowed bg-slate-200 text-slate-400"
-                                }`}
-                        >
-
-                            {submitting ? (
-                                <>
-                                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                                    Submitting Rating...
-                                </>
-                            ) : ratedCount === categories.length ? (
-                                <>
-                                    <Send size={18} />
-                                    Submit Rating
-                                </>
-                            ) : (
-                                <>
-                                    {categories.length - ratedCount} ratings
-                                    remaining
-                                </>
-                            )}
-
-                        </button>
-
-                        {/* Bottom Note */}
-                        <p className="mt-4 text-center text-xs leading-5 text-slate-400">
-                            Your review will be submitted anonymously and
-                            cannot be linked publicly to your profile.
-                        </p>
-                        </>
-                    )}
-
+                        )}
                     </div>
                 </div>
             </div>

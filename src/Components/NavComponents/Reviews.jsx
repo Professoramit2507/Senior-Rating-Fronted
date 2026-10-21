@@ -11,6 +11,7 @@ import {
   ThumbsUp,
   Eye,
 } from "lucide-react";
+import { getSeniorPhoto } from "../../utils/studentPhotos";
 
 const API_URL = "http://localhost:3000";
 
@@ -120,252 +121,231 @@ const Reviews = () => {
   });
 
   return (
-    <section className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 sm:py-10">
-      <div className="mx-auto max-w-7xl">
-        {/* ================= HEADER ================= */}
-        <div className="mb-10">
-          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+    <section className="min-h-screen bg-slate-950 text-white px-4 py-8 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-7xl animate-fade-in">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-600">
-                <MessageCircle size={17} />
-                Anonymous Reviews
+              <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-slate-900 border border-slate-800 px-2.5 py-1 text-xs font-semibold text-slate-300">
+                <MessageCircle size={14} className="text-indigo-400" />
+                Community Feed
               </div>
 
-              <h1 className="text-3xl font-extrabold text-slate-900 md:text-4xl">
-                Reviews
+              <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                Peer Review Feed
               </h1>
 
-              <p className="mt-2 max-w-2xl text-slate-500">
-                Explore honest experiences and feedback shared anonymously by
-                students across the campus.
+              <p className="mt-1.5 max-w-2xl text-xs sm:text-sm text-slate-400">
+                Explore real, unfiltered mentorship feedback shared anonymously by junior students.
               </p>
             </div>
 
-            <div className="flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-600">
-              <ShieldCheck size={18} />
-              Anonymous & Secure
+            <div className="inline-flex items-center gap-2 rounded-xl bg-slate-900 border border-slate-800 px-3.5 py-2 text-xs font-semibold text-slate-300 shadow-xs">
+              <ShieldCheck size={16} className="text-emerald-400" />
+              Verified Anonymity
             </div>
           </div>
         </div>
 
-        {/* ================= STATS ================= */}
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
-            <p className="text-sm text-slate-500">Total Reviews</p>
-            <h2 className="mt-2 text-3xl font-extrabold text-slate-900">
+        {/* Stats */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Reviews</p>
+            <h2 className="mt-1 text-2xl font-black text-white">
               {reviews.length}
             </h2>
-            <p className="mt-2 text-xs font-medium text-emerald-600">
-              Updated live
+            <p className="mt-1 text-[11px] font-medium text-emerald-400">
+              Active Community
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
-            <p className="text-sm text-slate-500">Average Rating</p>
-            <div className="mt-2 flex items-center gap-2">
-              <h2 className="text-3xl font-extrabold text-slate-900">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Average Rating</p>
+            <div className="mt-1 flex items-center gap-2">
+              <h2 className="text-2xl font-black text-white">
                 {(
                   reviews.reduce((acc, r) => acc + r.rating, 0) /
                   (reviews.length || 1)
                 ).toFixed(1)}
               </h2>
-              <Star size={22} fill="currentColor" className="text-yellow-400" />
+              <Star size={18} className="fill-amber-400 text-amber-400" />
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
-            <p className="text-sm text-slate-500">Anonymous Students</p>
-            <h2 className="mt-2 text-3xl font-extrabold text-slate-900">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Anonymous Students</p>
+            <h2 className="mt-1 text-2xl font-black text-white">
               1,240+
             </h2>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
-            <p className="text-sm text-slate-500">Seniors Reviewed</p>
-            <h2 className="mt-2 text-3xl font-extrabold text-slate-900">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Seniors Evaluated</p>
+            <h2 className="mt-1 text-2xl font-black text-white">
               {new Set(reviews.map((r) => r.senior)).size}
             </h2>
           </div>
         </div>
 
-        {/* ================= SEARCH & FILTER ================= */}
-        <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-5 shadow-xs">
-          <div className="grid gap-4 md:grid-cols-3">
-            {/* Search */}
+        {/* Search & Filter */}
+        <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-xl">
+          <div className="grid gap-3 md:grid-cols-3">
             <div className="relative md:col-span-2">
               <Search
-                size={20}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                size={18}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
               />
               <input
                 type="text"
-                placeholder="Search reviews by senior or department..."
+                placeholder="Search reviews by senior name or department..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                className="w-full rounded-xl border border-slate-800 bg-slate-950 py-2.5 pl-10 pr-4 text-xs sm:text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-indigo-500"
               />
             </div>
 
-            {/* Rating Filter */}
             <div className="relative">
               <Filter
-                size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                size={16}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
               />
               <select
                 value={ratingFilter}
                 onChange={(e) => setRatingFilter(e.target.value)}
-                className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 py-3.5 pl-11 pr-4 text-sm font-medium text-slate-700 outline-none focus:border-indigo-500"
+                className="w-full appearance-none rounded-xl border border-slate-800 bg-slate-950 py-2.5 pl-9 pr-3 text-xs sm:text-sm font-medium text-slate-300 outline-none focus:border-indigo-500 cursor-pointer"
               >
-                <option value="All">All Ratings</option>
-                <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
-                <option value="4">⭐⭐⭐⭐ 4 Stars</option>
-                <option value="3">⭐⭐⭐ 3 Stars</option>
-                <option value="2">⭐⭐ 2 Stars</option>
-                <option value="1">⭐ 1 Star</option>
+                <option value="All" className="bg-slate-950 text-white">All Ratings</option>
+                <option value="5" className="bg-slate-950 text-white">★★★★★ 5 Stars</option>
+                <option value="4" className="bg-slate-950 text-white">★★★★ 4 Stars</option>
+                <option value="3" className="bg-slate-950 text-white">★★★ 3 Stars</option>
+                <option value="2" className="bg-slate-950 text-white">★★ 2 Stars</option>
+                <option value="1" className="bg-slate-950 text-white">★ 1 Star</option>
               </select>
             </div>
           </div>
         </div>
 
-        {/* ================= REVIEW LIST ================= */}
-        <div className="mt-10">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">
-                Latest Reviews
-              </h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Honest feedback from anonymous students
-              </p>
-            </div>
-
-            <p className="hidden text-sm text-slate-500 md:block">
-              {filteredReviews.length} reviews found
-            </p>
+        {/* Reviews List */}
+        <div className="mt-8">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-white">
+              Recent Submissions ({filteredReviews.length})
+            </h2>
           </div>
 
-          <div className="space-y-5">
-            {filteredReviews.map((review) => (
-              <div
-                key={review.id}
-                className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs transition duration-300 hover:-translate-y-1 hover:shadow-lg"
-              >
-                {/* Top */}
-                <div className="flex flex-col justify-between gap-5 md:flex-row">
-                  <div className="flex items-center gap-4">
-                    {/* Anonymous Avatar */}
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-md">
-                      <UserRound size={24} />
-                    </div>
+          <div className="space-y-4">
+            {filteredReviews.map((review) => {
+              const photoUrl = getSeniorPhoto({ name: review.senior, _id: review.seniorId });
 
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-slate-900">
-                          Anonymous Student
-                        </h3>
-                        <ShieldCheck size={15} className="text-emerald-500" />
+              return (
+                <div
+                  key={review.id}
+                  className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-xl transition hover:border-slate-700"
+                >
+                  <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-11 w-11 shrink-0 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+                        <img
+                          src={photoUrl}
+                          alt={review.senior}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
 
-                      <p className="mt-1 text-sm text-slate-500">
-                        Reviewed{" "}
-                        <span className="font-semibold text-indigo-600">
-                          {review.senior}
-                        </span>
-                      </p>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="text-sm font-bold text-white">
+                            Anonymous Reviewer
+                          </h3>
+                          <ShieldCheck size={14} className="text-emerald-400" />
+                        </div>
+
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          Evaluated{" "}
+                          <span className="font-semibold text-indigo-400">
+                            {review.senior}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 rounded-md bg-slate-950 border border-slate-800 px-2.5 py-1 text-xs font-bold text-amber-400">
+                      <Star size={13} className="fill-amber-400" />
+                      <span>{review.rating}.0 / 5.0</span>
                     </div>
                   </div>
 
-                  {/* Rating */}
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 rounded-full bg-yellow-50 px-4 py-2 text-sm font-bold text-yellow-600">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          size={15}
-                          fill={star <= review.rating ? "currentColor" : "none"}
-                        />
-                      ))}
-                      <span className="ml-1">{review.rating}.0</span>
+                  <div className="mt-3 flex gap-2">
+                    <span className="rounded-md bg-slate-950 border border-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-400">
+                      {review.batch}
+                    </span>
+                    <span className="rounded-md bg-slate-950 border border-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-400">
+                      {review.department}
+                    </span>
+                  </div>
+
+                  <div className="mt-3 rounded-xl bg-slate-950 border border-slate-800 p-3.5">
+                    <p className="text-xs sm:text-sm leading-relaxed text-slate-300 italic">
+                      "{review.review}"
+                    </p>
+                  </div>
+
+                  <div className="mt-4 flex flex-col justify-between gap-2 border-t border-slate-800 pt-3 sm:flex-row sm:items-center">
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                      <CalendarDays size={13} />
+                      {review.date}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to={review.seniorId ? `/rate/${review.seniorId}` : "/seniors"}
+                        className="inline-flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-950 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white hover:border-slate-700"
+                      >
+                        <Eye size={13} />
+                        View Senior
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => handleHelpfulClick(review.id)}
+                        className="inline-flex items-center gap-1 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 cursor-pointer"
+                      >
+                        <ThumbsUp size={13} />
+                        Helpful ({review.helpful + (helpfulCounts[review.id] || 0)})
+                      </button>
                     </div>
                   </div>
                 </div>
-
-                {/* Senior Info */}
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
-                    {review.batch}
-                  </span>
-
-                  <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-600">
-                    {review.department}
-                  </span>
-                </div>
-
-                {/* Review */}
-                <div className="mt-5 rounded-2xl bg-slate-50 p-5">
-                  <p className="text-sm leading-7 text-slate-600">
-                    "{review.review}"
-                  </p>
-                </div>
-
-                {/* Bottom */}
-                <div className="mt-5 flex flex-col justify-between gap-4 border-t border-slate-100 pt-5 sm:flex-row sm:items-center">
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <CalendarDays size={15} />
-                    {review.date}
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Link
-                      to={review.seniorId ? `/rate/${review.seniorId}` : "/seniors"}
-                      className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 transition hover:border-indigo-500 hover:text-indigo-600"
-                    >
-                      <Eye size={15} />
-                      View Senior
-                    </Link>
-
-                    <button
-                      onClick={() => handleHelpfulClick(review.id)}
-                      className="flex items-center gap-2 rounded-xl bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-500 transition hover:bg-indigo-50 hover:text-indigo-600"
-                    >
-                      <ThumbsUp size={15} />
-                      Helpful {review.helpful + (helpfulCounts[review.id] || 0)}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Empty State */}
           {filteredReviews.length === 0 && (
-            <div className="rounded-3xl border border-slate-200 bg-white py-20 text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-500">
-                <MessageCircle size={28} />
-              </div>
-              <h3 className="mt-5 text-xl font-bold text-slate-900">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 py-16 text-center shadow-xl">
+              <MessageCircle size={24} className="mx-auto text-slate-500" />
+              <h3 className="mt-3 text-sm font-bold text-white">
                 No Reviews Found
               </h3>
-              <p className="mt-2 text-sm text-slate-500">
-                Try changing your search or rating filter.
+              <p className="mt-1 text-xs text-slate-400">
+                Try clearing your search query or filter criteria.
               </p>
             </div>
           )}
         </div>
 
-        {/* ================= PRIVACY BANNER ================= */}
-        <div className="mt-12 overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 text-center text-white">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-md">
-            <ShieldCheck size={28} />
+        {/* Bottom Banner */}
+        <div className="mt-12 rounded-2xl bg-slate-900 p-6 text-center text-white border border-slate-800">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-emerald-400">
+            <ShieldCheck size={20} />
           </div>
 
-          <h3 className="mt-5 text-2xl font-bold">Every Voice Is Anonymous</h3>
+          <h3 className="mt-3 text-base font-bold text-white">
+            Institutional Privacy & Decoupled Authorship
+          </h3>
 
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-indigo-100">
-            Reviews help seniors understand how they are perceived by juniors.
-            Reviewer identities remain protected so students can share genuine
-            experiences without fear.
+          <p className="mx-auto mt-1 max-w-xl text-xs text-slate-400 leading-relaxed">
+            Reviews empower senior students to benchmark their mentorship effectiveness. All evaluations are cryptographically detached from student identities.
           </p>
         </div>
       </div>

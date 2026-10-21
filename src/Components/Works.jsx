@@ -1,4 +1,3 @@
-
 import {
   LogIn,
   Search,
@@ -13,269 +12,118 @@ const HowItWorks = () => {
     {
       number: "01",
       icon: LogIn,
-      title: "Create Your Account",
+      title: "Create Account & Sign In",
       description:
-        "Sign up using your student information and securely access the CampusRate platform.",
-      color: "indigo",
+        "Authenticate using your verified campus student account to unlock the evaluation roster.",
     },
     {
       number: "02",
       icon: Search,
       title: "Find Your Senior",
       description:
-        "Browse seniors from batches above you and find the senior you want to rate.",
-      color: "purple",
+        "Browse senior profiles filtered to preceding batches. You can only evaluate true seniors.",
     },
     {
       number: "03",
       icon: Star,
-      title: "Give Your Rating",
+      title: "Submit 6-Category Rating",
       description:
-        "Rate your senior based on helpfulness, behavior, communication, guidance and more.",
-      color: "yellow",
+        "Score across behavior, communication, helpfulness, and leave qualitative commentary.",
     },
     {
       number: "04",
       icon: ShieldCheck,
-      title: "Stay Anonymous",
+      title: "100% Anonymous Delivery",
       description:
-        "Your feedback is shared anonymously. Your identity will never be displayed publicly.",
-      color: "emerald",
+        "Your feedback is cryptographically decoupled from your profile upon submission.",
     },
   ];
 
   return (
-    <section className="relative overflow-hidden bg-white py-24">
-
-      {/* ================= Background Decoration ================= */}
-      <div className="absolute top-0 left-0 w-72 h-72
-        bg-indigo-100/50 rounded-full blur-3xl">
-      </div>
-
-      <div className="absolute bottom-0 right-0 w-80 h-80
-        bg-purple-100/50 rounded-full blur-3xl">
-      </div>
-
+    <section className="relative bg-slate-900/40 text-white py-24 border-t border-slate-900">
       <div className="relative max-w-7xl mx-auto px-6">
-
         {/* ================= SECTION HEADER ================= */}
-        <div className="text-center max-w-2xl mx-auto">
-
-          {/* Badge */}
-          <div
-            className="inline-flex items-center gap-2
-            px-4 py-2 rounded-full
-            bg-indigo-50 border border-indigo-100
-            text-indigo-600 text-sm font-semibold
-            mb-5"
-          >
-            <LockKeyhole size={16} />
-            Simple & Secure
+        <div className="text-center max-w-2xl mx-auto animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold uppercase tracking-wider mb-4">
+            <LockKeyhole size={14} className="text-indigo-400" />
+            Simple & Secure Process
           </div>
 
-          {/* Heading */}
-          <h2
-            className="text-3xl sm:text-4xl lg:text-5xl
-            font-extrabold text-slate-900"
-          >
-            How{" "}
-            <span
-              className="bg-gradient-to-r from-indigo-600
-              via-purple-600 to-pink-500
-              bg-clip-text text-transparent"
-            >
-              CampusRate
-            </span>{" "}
-            Works
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            How <span className="text-indigo-400">CampusRate</span> Works
           </h2>
 
-          {/* Description */}
-          <p className="mt-5 text-slate-500 text-lg leading-7">
-            Giving honest feedback about your seniors is simple,
-            secure and completely anonymous.
+          <p className="mt-4 text-slate-400 text-sm sm:text-base leading-relaxed">
+            Giving authentic feedback is designed to be streamlined, safe, and completely anonymous from start to finish.
           </p>
-
         </div>
 
         {/* ================= STEPS ================= */}
         <div className="relative mt-16">
-
           {/* Connecting Line */}
-          <div
-            className="hidden lg:block absolute
-            top-[52px] left-[12%] right-[12%]
-            h-[2px]
-            bg-gradient-to-r from-indigo-200
-            via-purple-200 to-emerald-200"
-          ></div>
+          <div className="hidden lg:block absolute top-12 left-[10%] right-[10%] h-[1px] bg-slate-800" />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
-
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {steps.map((step, index) => {
-
               const Icon = step.icon;
 
               return (
-                <div
-                  key={step.number}
-                  className="group relative"
-                >
+                <div key={step.number} className="group relative">
+                  <div className="relative h-full bg-slate-900/90 rounded-2xl p-6 border border-slate-800 shadow-xl hover:border-slate-700 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                      {/* Top Header of Card */}
+                      <div className="flex items-center justify-between mb-5">
+                        <div className="w-11 h-11 rounded-xl bg-slate-800 border border-slate-700 text-white flex items-center justify-center shadow-xs group-hover:bg-indigo-600 transition-colors">
+                          <Icon size={20} />
+                        </div>
+                        <span className="text-2xl font-black text-slate-700 group-hover:text-slate-400 transition-colors">
+                          {step.number}
+                        </span>
+                      </div>
 
-                  {/* ================= CARD ================= */}
-                  <div
-                    className="relative h-full bg-white
-                    rounded-3xl p-7
-                    border border-slate-200
-                    shadow-sm
-                    hover:shadow-2xl
-                    hover:-translate-y-3
-                    transition-all duration-500"
-                  >
-
-                    {/* Number */}
-                    <div
-                      className="absolute top-5 right-5
-                      text-5xl font-black
-                      text-slate-100
-                      group-hover:text-indigo-100
-                      transition-colors duration-500"
-                    >
-                      {step.number}
-                    </div>
-
-                    {/* Icon */}
-                    <div
-                      className="relative w-16 h-16
-                      rounded-2xl
-                      bg-gradient-to-br
-                      from-indigo-500 to-purple-500
-                      flex items-center justify-center
-                      shadow-lg shadow-indigo-200
-                      group-hover:scale-110
-                      group-hover:rotate-6
-                      transition-all duration-500"
-                    >
-                      <Icon
-                        size={28}
-                        className="text-white"
-                      />
-
-                      {/* Small Dot */}
-                      <span
-                        className="absolute -top-1 -right-1
-                        w-4 h-4 rounded-full
-                        bg-yellow-400
-                        border-2 border-white
-                        group-hover:animate-ping"
-                      ></span>
-                    </div>
-
-                    {/* Content */}
-                    <div className="mt-7">
-
-                      <h3
-                        className="text-xl font-bold
-                        text-slate-800
-                        group-hover:text-indigo-600
-                        transition-colors duration-300"
-                      >
+                      {/* Content */}
+                      <h3 className="text-base font-bold text-white group-hover:text-indigo-300 transition-colors">
                         {step.title}
                       </h3>
 
-                      <p
-                        className="mt-3 text-slate-500
-                        leading-7 text-sm"
-                      >
+                      <p className="mt-2 text-slate-400 text-xs sm:text-sm leading-relaxed">
                         {step.description}
                       </p>
-
                     </div>
 
-                    {/* Bottom Arrow */}
-                    <div
-                      className="mt-6 flex items-center
-                      gap-2 text-sm font-semibold
-                      text-indigo-500
-                      opacity-0
-                      group-hover:opacity-100
-                      translate-y-2
-                      group-hover:translate-y-0
-                      transition-all duration-300"
-                    >
-                      Step {index + 1}
-
-                      <ArrowRight
-                        size={16}
-                        className="group-hover:translate-x-1
-                        transition-transform"
-                      />
+                    {/* Step tag */}
+                    <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-medium text-slate-500">
+                      <span>Step {index + 1} of 4</span>
+                      <ArrowRight size={13} className="text-slate-500 group-hover:translate-x-1 group-hover:text-indigo-400 transition-all" />
                     </div>
-
                   </div>
-
                 </div>
               );
             })}
-
           </div>
         </div>
 
-        {/* ================= BOTTOM PRIVACY CARD ================= */}
-        <div
-          className="mt-16 relative overflow-hidden
-          rounded-3xl
-          bg-gradient-to-r from-indigo-600
-          via-purple-600 to-pink-500
-          p-[1px]"
-        >
-
-          <div
-            className="relative rounded-[23px]
-            bg-slate-950 px-7 py-8
-            flex flex-col md:flex-row
-            items-center justify-between gap-6"
-          >
-
-            {/* Left */}
-            <div className="flex items-center gap-4">
-
-              <div
-                className="w-14 h-14 rounded-2xl
-                bg-white/10
-                flex items-center justify-center
-                shrink-0"
-              >
-                <ShieldCheck
-                  size={27}
-                  className="text-emerald-400"
-                />
-              </div>
-
-              <div>
-                <h3 className="text-lg font-bold text-white">
-                  Your identity stays private
-                </h3>
-
-                <p className="text-sm text-slate-400 mt-1">
-                  Every rating is submitted anonymously.
-                </p>
-              </div>
-
+        {/* ================= BOTTOM PRIVACY BANNER ================= */}
+        <div className="mt-14 rounded-2xl bg-slate-900 text-white p-6 sm:p-7 border border-slate-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+              <ShieldCheck size={24} className="text-emerald-400" />
             </div>
-
-            {/* Right */}
-            <div
-              className="flex items-center gap-2
-              text-sm font-semibold
-              text-emerald-400"
-            >
-              <ShieldCheck size={18} />
-              Privacy Protected
+            <div>
+              <h3 className="text-sm sm:text-base font-bold text-white">
+                Guaranteed Student Confidentiality
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+                Batch isolation and zero identity logging ensure honest reviews without peer pressure.
+              </p>
             </div>
+          </div>
 
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950 text-emerald-400 border border-emerald-500/30 text-xs font-semibold shrink-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            Encrypted & Anonymous
           </div>
         </div>
-
       </div>
     </section>
   );
